@@ -22,7 +22,7 @@ new class extends Component
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
         $this->phone_no = Auth::user()->phone_no;
-        $this->address = Auth::user()->address;
+        $this->address = Auth::user()->address ?? '';
     }
 
     /**
