@@ -17,6 +17,7 @@
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
             <livewire:layout.navigation />
+            <livewire:layout.sidebar />
 
             <!-- Page Heading -->
             @if (isset($header))
@@ -28,7 +29,7 @@
             @endif
 
             <!-- Page Content -->
-            <main>
+            <main class="sm:ml-36">
                 {{ $slot }}
             </main>
         </div>
