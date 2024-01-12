@@ -14,7 +14,7 @@ new #[Layout('layouts.guest')] class extends Component
     public string $name = '';
     public string $email = '';
     public string $phone_no = '';
-    public string $role = '';
+    public string $role = 'customer';
     public string $address = '';
     public string $password = '';
     public string $password_confirmation = '';
@@ -80,6 +80,16 @@ new #[Layout('layouts.guest')] class extends Component
                             name="password_confirmation" required autocomplete="new-password" />
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        </div>
+
+         <!-- Phone No -->
+         <div class="mt-4">
+            <x-input-label for="phone_no" :value="__('Phone No')" />
+
+            <x-text-input wire:model="phone_no" id="phone_no" class="block mt-1 w-full"
+                            name="phone_no" required autocomplete="phone-no" />
+
+            <x-input-error :messages="$errors->get('phone_no')" class="mt-2" />
         </div>
 
         <div class="flex items-center justify-end mt-4">
