@@ -9,7 +9,7 @@ class FieldIndexTest extends TestCase
 {
     public function test_it_can_render(): void
     {
-        $component = Volt::test('field-index');
+        $component = Volt::test('pages.field.index');
 
         $component->assertSee('');
     }

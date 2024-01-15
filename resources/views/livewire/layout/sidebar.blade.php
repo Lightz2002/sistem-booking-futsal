@@ -30,13 +30,19 @@ new class extends Component
 }; ?>
 
 
-<nav class="hidden bg-white fixed top-16 w-36  sm:block bottom-0 m-0 py-8">
+<nav class="hidden bg-white fixed top-0 w-36  sm:block bottom-0 m-0">
     <!-- Navigation Links -->
     <div class="flex flex-col ">
+        <div class="py-4 mx-auto">
+            <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+        </div>
+
+        <ul class="mt-10">
         @foreach($menus as $menu)
-            <x-nav-link class="p-4 pl-8" :href="route($menu)" :active="request()->routeIs($menu)" wire:navigate>
+            <x-nav-link class="w-full p-4 pl-8" :href="route($menu)" :active="request()->routeIs($menu)" wire:navigate>
                 {{ __(ucwords($menu)) }}
             </x-nav-link>
         @endforeach
+        </ul>
     </div>
 </nav>
