@@ -18,4 +18,9 @@ class Field extends Model
         'name',
         'image',
     ];
+
+    public function scopeFilter($query, $search = '')
+    {
+        return $query->where('name', 'like', '%' . $search . '%');
+    }
 }

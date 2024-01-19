@@ -2,19 +2,31 @@
 
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 use Livewire\Attributes\Rule;
 use App\Models\Field;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 new class extends Component {
-    use WithFileUploads;
 
-    public bool $showAddModal = false;
+    use WithFileUploads, WithPagination;
 
     #[Rule('required|min:3')]
     public string $name = '';
 
     #[Rule('file|max:1024')]
     public $image;
+
+    public $search = '';
+
+
+    public function with(): array
+    {
+        return [
+            'fields' => Field::filter($this->search)->paginate(5)
+        ];
+    }
+
 
     public function addField() {
         if (isset($this->image) && !empty($this->image)) {
@@ -36,9 +48,17 @@ new class extends Component {
         $this->dispatch('open-alert', name: 'success-alert', type: 'success');
     }
 
+    public function searchFields() {
+        $this->resetPage();
+    }
+
+    public function redirectToDetail($fieldId) {
+        $this->redirectRoute('fields.detail', ['field' => $fieldId]);
+    }
+
 }; ?>
 
-<div class="h-full  rounded-md mx-auto p-8">
+<div class="h-full  rounded-md mx-auto">
     <x-alert type="success" name="success-alert"></x-alert>
 
     <div class="flex items-center mb-4">
@@ -48,8 +68,9 @@ new class extends Component {
         >Add</x-primary-button>
     </div>
 
-    <div class="flex items-center w-1/3 relative">
-            <input wire:model="search" name="search" type="search" placeholder="Search..."
+
+    <div class="flex items-center w-1/3 relative mb-4">
+            <input wire:model.live="search" wire:keydown="searchFields" name="search" type="search" placeholder="Search..."
                 class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
 
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -59,7 +80,29 @@ new class extends Component {
             </svg>
     </div>
 
-    <x-modal name="add-field" :show="$showAddModal" focusable>
+    <div class="flex gap-4 flex-col sm:flex-row mb-2">
+        @foreach($fields as $field)
+        <div class="w-full sm:w-56 overflow-hidden bg-white rounded-lg  hover:cursor-pointer hover:transition-all transition-transform transform hover:scale-105 shadow-lg dark:bg-gray-800"
+        wire:key="{{ $field->id }}"
+        wire:click="redirectToDetail({{ $field->id }})"
+        >
+            <img class="object-cover w-full h-48" src="{{ $field->image }}" alt="NIKE AIR">
+            <div class="flex items-center justify-between px-4 py-2 bg-gray-900">
+                <h1 class="text-lg font-bold text-white">{{ $field->name }}</h1>
+                {{-- <button class="px-2 py-1 text-xs font-semibold text-gray-900 uppercase transition-colors duration-300 transform bg-white rounded hover:bg-gray-200 focus:bg-gray-400 focus:outline-none">Add to cart</button> --}}
+            </div>
+
+            {{-- <div class="px-4 py-2">
+                <h1 class="text-xl font-bold text-gray-800 uppercase dark:text-white">{{ $field->name }}</h1>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400"></p>
+            </div> --}}
+        </div>
+        @endforeach
+    </div>
+
+    {{ $fields ? $fields->withQueryString()->links() : '' }}
+
+    <x-modal name="add-field" :show="false" focusable>
         <form wire:submit.prevent="addField" class="p-6" enctype="multipart/form-data">
 
             <h2 class="text-lg font-medium text-gray-900">
@@ -114,4 +157,31 @@ new class extends Component {
             </div>
         </form>
     </x-modal>
+
+    {{-- <x-modal class="p-4" name="detail-field" :show="false">
+        <div class="flex items-center p-4 w-full mb-2">
+            <h3 class="text-lg font-bold">Field</h3>
+            <x-dropdown class="ml-auto" >
+                <x-slot name="trigger">
+                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                        <div>Actions</div>
+
+                        <div class="ms-1">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </button>
+                </x-slot>
+
+                <x-slot name="content">
+                    <x-dropdown-link :href="route('profile')" wire:navigate>
+                        {{ __('Profile') }}
+                    </x-dropdown-link>
+                </x-slot>
+            </x-dropdown>
+        </div>
+
+        <img class="w-full h-52 object-cover mb-2" src="{{ url('storage/img/1705207142_alfamart7.jpeg') }}" alt="">
+    </x-modal> --}}
 </div>
