@@ -46,6 +46,11 @@ new class extends Component {
         $this->form->name = $this->field->name;
     }
 
+    public function delete() {
+        $this->field->update(['status' => 'inactive']);
+        // $this->dispatch('open-alert', name: 'success-alert', type: 'success', message: 'Field deleted successfully !');
+        $this->redirectRoute('fields');
+    }
 }; ?>
 
 <div class="">
@@ -68,9 +73,11 @@ new class extends Component {
             </x-slot>
 
             <x-slot name="content">
-                <x-dropdown-link :href="route('profile')" wire:navigate>
-                    {{ __('Profile') }}
-                </x-dropdown-link>
+                <x-dropdown-button
+                x-on:click.prevent="$dispatch('open-modal', 'delete-field')"
+                >
+                    {{ __('Delete') }}
+                </x-dropdown-button>
             </x-slot>
         </x-dropdown>
     </div>
@@ -108,4 +115,26 @@ new class extends Component {
             </div>
         </div>
     </form>
+
+    <x-modal name="delete-field" :show="false">
+        <form wire:submit.prevent="delete" class="p-6">
+            <h2 class="text-lg font-medium text-gray-900">
+                {{ __('Are you sure you want to delete this field ?') }}
+            </h2>
+
+            <p class="mt-1 text-sm text-gray-600">
+                {{ __("This action can't be reverted !") }}
+            </p>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+
+                <x-danger-button class="ms-3">
+                    {{ __('Delete Field') }}
+                </x-danger-button>
+            </div>
+        </form>
+    </x-modal>
 </div>

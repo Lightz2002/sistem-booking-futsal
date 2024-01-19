@@ -6,6 +6,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Rule;
 use App\Models\Field;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\On;
 
 new class extends Component {
 
@@ -55,7 +56,6 @@ new class extends Component {
     public function redirectToDetail($fieldId) {
         $this->redirectRoute('fields.detail', ['field' => $fieldId]);
     }
-
 }; ?>
 
 <div class="h-full  rounded-md mx-auto">

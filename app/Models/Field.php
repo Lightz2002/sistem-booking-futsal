@@ -17,10 +17,12 @@ class Field extends Model
     protected $fillable = [
         'name',
         'image',
+        'status',
     ];
 
     public function scopeFilter($query, $search = '')
     {
-        return $query->where('name', 'like', '%' . $search . '%');
+        return $query->where('status', 'active')
+            ->where('name', 'like', '%' . $search . '%');
     }
 }

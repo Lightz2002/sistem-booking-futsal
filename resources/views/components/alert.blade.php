@@ -1,5 +1,6 @@
 @props([
     'name',
+    'message' => 'Data added successfully !',
     'type' => 'success',
     'show' => false,
 ])
@@ -63,7 +64,7 @@
     <div class="px-4 py-2 -mx-3">
         <div class="mx-3">
             <span class="font-semibold {{ $alert->color }}">{{ ucfirst($type) }}</span>
-            <p class="text-sm text-gray-600">{{ session('message') }}</p>
+            <p class="text-sm text-gray-600">{{ $message }}</p>
         </div>
     </div>
 
