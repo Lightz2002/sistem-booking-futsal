@@ -22,6 +22,7 @@ Route::view('dashboard', 'dashboard')
 Route::prefix('fields')->middleware(['auth', 'verified'])->group(function () {
 
     Volt::route('/', 'pages.field.index')->name('fields');
+    Volt::route('/{field}', 'pages.field.detail')->name('fields.detail');
 });
 
 
