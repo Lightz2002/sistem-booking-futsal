@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('code', 50);
             $table->string('name', 200);
             $table->foreignIdFor(Field::class);
-            $table->dateTime('valid_end');
+            $table->date('valid_end');
             $table->string('image')->nullable();
             $table->timestamps();
         });
