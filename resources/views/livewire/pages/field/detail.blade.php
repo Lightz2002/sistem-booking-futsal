@@ -59,9 +59,9 @@ new class extends Component {
     <div class="flex items-center mb-4">
         <h1 class="font-bold text-2xl">View Field</h1>
 
-        <x-dropdown class="ml-auto" >
+        <x-dropdown class="ml-auto " >
             <x-slot name="trigger">
-                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md bg-gray-800 text-gray-300 hover:text-gray-100 focus:outline-none transition ease-in-out duration-150 " >
                     <div>Actions</div>
 
                     <div class="ms-1">
