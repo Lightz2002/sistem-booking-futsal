@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name', 200);
             $table->foreignIdFor(Field::class);
             $table->dateTime('valid_end');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
