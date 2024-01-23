@@ -19,10 +19,15 @@ Route::view('/', 'welcome');
 Route::view('dashboard', 'dashboard')
     ->name('dashboard');
 
-Route::prefix('fields')->middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::prefix('fields')->group(function () {
+        Volt::route('/', 'pages.field.index')->name('fields');
+        Volt::route('/{field}', 'pages.field.detail')->name('fields.detail');
+    });
 
-    Volt::route('/', 'pages.field.index')->name('fields');
-    Volt::route('/{field}', 'pages.field.detail')->name('fields.detail');
+    Route::prefix('packages')->group(function () {
+        Volt::route('/', 'pages.package.index')->name('packages');
+    });
 });
 
 

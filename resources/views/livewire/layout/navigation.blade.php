@@ -19,7 +19,7 @@ new class extends Component
                 break;
             case 'admin':
                 // $menus = ['field', 'package', 'booking'];
-                $menus = ['dashboard', 'fields'];
+                $menus = ['dashboard', 'fields', 'packages'];
                 break;
         }
 

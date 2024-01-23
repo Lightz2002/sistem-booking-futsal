@@ -141,7 +141,7 @@ new class extends Component {
                 />
 
 
-                <progress wire:loading wire:target="image" class="bg-indigo-600 progress w-56"></progress>
+                <progress wire:loading wire:target="image" class="bg-indigo-600 progress w-56">Uploading...</progress>
 
                 <x-input-error :messages="$errors->get('image')" class="mt-2" />
             </div>
