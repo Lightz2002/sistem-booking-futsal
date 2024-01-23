@@ -3,7 +3,7 @@
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use Livewire\Attributes\Rule;
+use Livewire\Attributes\Validate;
 use App\Models\Field;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\On;
@@ -12,10 +12,10 @@ new class extends Component {
 
     use WithFileUploads, WithPagination;
 
-    #[Rule('required|min:3')]
+    #[Validate('required|min:3|unique:fields,name')]
     public string $name = '';
 
-    #[Rule('file|max:1024')]
+    #[Validate('file|max:1024')]
     public $image;
 
     public $search = '';
@@ -30,6 +30,8 @@ new class extends Component {
 
 
     public function addField() {
+        $this->validate();
+        
         if (isset($this->image) && !empty($this->image)) {
             $fileName = $this->image->getClientOriginalName();
 
