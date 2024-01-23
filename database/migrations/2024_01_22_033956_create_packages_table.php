@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('code', 50);
             $table->string('name', 200);
+            $table->string('status')->default('inactive');
             $table->foreignIdFor(Field::class);
             $table->date('valid_end');
             $table->string('image')->nullable();
