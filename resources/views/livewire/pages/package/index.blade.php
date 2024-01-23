@@ -18,7 +18,7 @@ new class extends Component {
         ];
     }
 
-    #[Validate('required')]
+    #[Validate('required|unique:packages,code')]
     public string $code = '';
 
     #[Validate('required')]
