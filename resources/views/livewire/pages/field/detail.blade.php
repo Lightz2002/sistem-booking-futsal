@@ -16,6 +16,7 @@ new class extends Component {
 
     public function mount(Field $field) {
         $this->field = $field;
+        $this->form->id = $this->field->id;
         $this->form->name = $this->field->name;
     }
 
@@ -41,20 +42,32 @@ new class extends Component {
             $this->form->all()
         );
 
-        $this->dispatch('open-alert', name: 'success-alert', type: 'success');
-        $this->form->reset();
-        $this->form->name = $this->field->name;
+        $this->dispatch('open-alert', name: 'success-alert', type: 'Success', message: 'Field Updated Successfully');
+        $this->resetForm();
+        $this->isEdit = false;
     }
 
     public function delete() {
         $this->field->update(['status' => 'inactive']);
-        // $this->dispatch('open-alert', name: 'success-alert', type: 'success', message: 'Field deleted successfully !');
+        // $this->dispatch('open-alert', name: 'success-alert', type: 'Success', message: 'Field deleted successfully !');
         $this->redirectRoute('fields');
+    }
+
+    public function resetForm() {
+        $this->form->reset();
+        $this->form->name = $this->field->name;
+        $this->form->id = $this->field->id;
+    }
+
+    public function toggleEdit() {
+        $this->resetForm();
+        $this->isEdit = !$this->isEdit;
+        $this->validate();
     }
 }; ?>
 
 <div class="">
-    <x-alert type="success" name="success-alert"></x-alert>
+    <x-alert name="success-alert"></x-alert>
 
     <div class="flex items-center mb-4">
         <h1 class="font-bold text-2xl">View Field</h1>
@@ -103,7 +116,7 @@ new class extends Component {
             </div>
 
             <div class="flex items-center col-span-2 gap-4 ml-auto">
-                <x-secondary-button wire:click="$toggle('isEdit')" type="button">
+                <x-secondary-button wire:click="toggleEdit" type="button">
                     {{ $isEdit ? __('Cancel') : __('Edit') }}
                 </x-secondary-button>
 
@@ -127,7 +140,7 @@ new class extends Component {
             </p>
 
             <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
+                <x-secondary-button x-on:click="$dispatch('close'); ">
                     {{ __('Cancel') }}
                 </x-secondary-button>
 
