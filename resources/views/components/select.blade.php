@@ -10,6 +10,10 @@
 
     <ul x-show="open" @close-autocomplete.window="open = false" class="absolute top-15 bg-white w-full shadow-md rounded-md max-h-40 overflow-y-auto py-4"
     x-bind:class="{ 'overflow-hidden': open }">
+        @if (count($options) === 0)
+            <li class="text-gray-400  px-4 py-2 ">No Options Found</li>
+        @endif
+
         @foreach($options as $option)
             <li @click="$wire.{{ $model }} = '{{ $option->name }}';" class="cursor-pointer px-4 py-2 hover:bg-indigo-600 hover:text-white">{{ $option->name }}</li>
         @endforeach 
