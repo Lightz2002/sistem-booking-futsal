@@ -14,7 +14,8 @@ new class extends Component {
     public function with(): array
     {
         return [
-            'fields' => Field::filter($this->field)->select('name')->get()
+            'fields' => Field::filter($this->field)->select('name')->get(),
+            'packages' => Package::filter($this->search)->get(),
         ];
     }
 
@@ -34,6 +35,10 @@ new class extends Component {
     public $image;
 
     public $search = '';
+
+    public function searchPackages() {
+        $this->resetPage();
+    }
 
     public function addPackage() {
         $this->validate(); 
@@ -63,8 +68,12 @@ new class extends Component {
         ]);
 
         $this->dispatch('close-modal', 'add-package');
-        $this->dispatch('open-alert', name: 'success-alert', type: 'success', message: 'Package Added Successfully');
+        $this->dispatch('open-alert', name: 'success-alert', type: 'Success', message: 'Package Added Successfully');
         $this->reset();
+    }
+
+    public function redirectToDetail($id) {
+        $this->redirectRoute('packages.detail', ['package' => $id]);
     }
 }
 //
@@ -72,7 +81,7 @@ new class extends Component {
 ?>
 
 <div class="h-full  rounded-md mx-auto">
-    <x-alert type="success" name="success-alert"></x-alert>
+    <x-alert name="success-alert"></x-alert>
 
     <div class="flex items-center mb-4">
         <h1 class="font-bold text-2xl">Packages</h1>
@@ -81,17 +90,9 @@ new class extends Component {
         >Add</x-primary-button>
     </div>
 
-    <div class="flex items-center w-1/3 relative mb-4">
-        <input wire:model.live="search" wire:keydown="searchFields" name="search" type="search" placeholder="Search..."
-            class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
+    <x-search model="search" search="searchPackages" />
 
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="stroke-slate-400 w-6 h-6 absolute top-1/2 right-10 translate-y-[-50%]">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
-    </div>
-
+    {{-- create form --}}
     <x-modal name="add-package" :show="false" focusable>
         <form wire:submit.prevent="addPackage" class="p-6" enctype="multipart/form-data">
 
@@ -188,4 +189,20 @@ new class extends Component {
             </div>
         </form>
     </x-modal>
+
+    {{-- list --}}
+    <div class="flex gap-4 flex-col sm:flex-row mb-2">
+        @foreach($packages as $package)
+        <div class="w-full sm:w-56 overflow-hidden bg-white rounded-lg  hover:cursor-pointer hover:transition-all transition-transform transform hover:scale-105 shadow-lg dark:bg-gray-800"
+        wire:key="{{ $package->id }}"
+        wire:click="redirectToDetail({{ $package->id }})"
+        >
+            <img class="object-cover w-full h-48" src="{{ $package->image }}" alt="{{ $package->name }}">
+            <div class="flex items-center justify-between px-4 py-2 bg-gray-900">
+                <h1 class="text-lg font-bold text-white">{{ $package->name }}</h1>
+            </div>
+
+        </div>
+        @endforeach
+    </div>
 </div>
