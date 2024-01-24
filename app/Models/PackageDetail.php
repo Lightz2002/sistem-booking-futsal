@@ -22,6 +22,13 @@ class PackageDetail extends Model
         'price',
     ];
 
+    public function scopeFilter($query, $search = '')
+    {
+        return $query->where('start_time', 'like', '%' . $search . '%')
+            ->orWhere('end_time', 'like', '%' . $search . '%')
+            ->orWhere('price', 'like', '%' . $search . '%');
+    }
+
     public function package(): BelongsTo
     {
         return  $this->belongsTo(Package::class);

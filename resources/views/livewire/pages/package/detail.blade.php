@@ -2,6 +2,7 @@
 
 use Livewire\Volt\Component;
 use App\Models\Package;
+use App\Models\PackageDetail;
 use App\Livewire\Forms\EditPackageForm;
 use Livewire\WithPagination;
 
@@ -14,6 +15,7 @@ new class extends Component {
     public $isEdit = false;
 
     public $package;
+    public $search = '';
 
     public function mount(Package $package) {
         // $this->form = new EditPackageForm(); // Instantiate the form
@@ -23,8 +25,13 @@ new class extends Component {
 
     public function with(): array
     {
+        $packageDetails =  PackageDetail::filter($this->search)
+        ->where('package_id', $this->package->id
+        )->paginate(2);
+
         return [
             'package' => $this->package,
+            'details' => $packageDetails,
             'detailColumns' => [
                 [
                     'key' => 'start_time',
@@ -40,6 +47,10 @@ new class extends Component {
                 ]
             ]
         ];
+    }
+
+    public function searchPackageDetails() {
+        $this->resetPage();
     }
 }
 
@@ -68,10 +79,13 @@ new class extends Component {
                         <x-detail-desc label="Status" :value="$package->status" />
                     </div>
                 </div>
+
                 <div x-show="activeTab === 1" >
                     <h3 class="font-bold text-lg mb-4">Detail List</h3>
                     <div class="mb-4  overflow-hidden rounded-lg shadow-md">
-                        <table class="table-auto w-full  text-left  border-slate-200">
+                        <x-search model="search" search="searchPackageDetails" class="text-gray-800"/>
+
+                        <table class="table-auto w-full  text-left  border-slate-200 mb-2">
                             <thead>
                                 <tr>
                                     @foreach ($detailColumns as $column)
@@ -103,7 +117,7 @@ new class extends Component {
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($package->package_details as $row)
+                                @foreach ($details as $row)
                                     <tr>
                                         @foreach ($detailColumns as $column)
                                             <td class="p-3 border-b cursor-pointer bg-white text-gray-800 border-slate-200">
@@ -118,10 +132,10 @@ new class extends Component {
                                 @endforeach
                             </tbody>
                         </table>
-                
-                        {{-- Pagination --}}
+                        
+                        {{ $details->withQueryString()->links()  }}
+
                     </div>
-                
                 </div>
             </div>
         </x-slot>

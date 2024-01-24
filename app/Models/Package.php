@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Package extends Model
 {
@@ -33,5 +34,10 @@ class Package extends Model
     public function field(): BelongsTo
     {
         return  $this->belongsTo(Field::class);
+    }
+
+    public function package_details(): HasMany
+    {
+        return  $this->hasMany(PackageDetail::class);
     }
 }

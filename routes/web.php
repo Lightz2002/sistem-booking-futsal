@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('packages')->group(function () {
         Volt::route('/', 'pages.package.index')->name('packages');
+        Volt::route('/{package}', 'pages.package.detail')->name('packages.detail');
     });
 });
 

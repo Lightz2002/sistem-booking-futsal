@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Package::class);
             $table->time('start_time');
             $table->time('end_time');
-            $table->time('price');
+            $table->decimal('price', 10, 2);
             $table->timestamps();
         });
     }

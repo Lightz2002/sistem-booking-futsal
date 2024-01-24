@@ -111,7 +111,7 @@ new class extends Component {
                 <div class="product-detail md:ml-4  grid grid-cols-2 justify-start justify-self-start content-start gap-4 text-white">
                     <div>
                         <x-input-label for="name" :value="__('Name')" class="text-white md:text-lg"/>
-                        <x-text-input :readonly="!$isEdit" id="name" name="name" model="form.name" class="{{ $isEdit ? 'text-gray-600' : 'bg-transparent border-none p-0 shadow-none text-white' }}  md:text-lg"   />
+                        <x-text-input :readonly="!$isEdit" id="name" name="name" model="form.name" class="{{ $isEdit ? 'text-gray-600' : 'bg-transparent border-none p-0 shadow-none text-gray-300' }}  md:text-lg"   />
                         <x-input-error :messages="$errors->get('form.name')" class="mt-2" />
                     </div>
         
