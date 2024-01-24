@@ -1,5 +1,5 @@
 @props([
-    'tabs',
+    'tabs' => ['Main'],
 ])
 
 <div x-data="{
@@ -7,7 +7,7 @@
   activeTab: 0 // Index of the initially active tab
 }">
 
-  <div class="flex mb-2 rounded-md  w-1/3">
+  <div class="flex mb-2 rounded-md  w-full">
     <template x-for="tab, index in tabs" :key="index">
       <button
       class="rounded-md bg-white text-gray-800 px-8 py-2 hover:bg-gray-200 hover:cursor-pointer"
@@ -16,9 +16,12 @@
         x-text="tab"
       >
       </button>
+
     </template>
+
+    @isset($dropdown) {{ $dropdown }} @endisset
   </div>
 
-  {{ $slot }}
+  {{ $content }}
 
 </div>
