@@ -69,11 +69,13 @@ new class extends Component {
 <div class="">
     <x-alert name="success-alert"></x-alert>
 
+    <h1 class="mb-4 font-bold text-2xl">View Fields</h1>
+
     <x-tabs>
         <x-slot name="dropdown">
             <x-dropdown class="ml-auto" >
                 <x-slot name="trigger">
-                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md bg-gray-800 text-gray-300 hover:text-gray-100 focus:outline-none transition ease-in-out duration-150 " >
+                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md bg-gray-800 text-gray-300 hover:text-gray-100 focus:outline-none transition ease-in-out duration-150 " >
                         <div>Actions</div>
     
                         <div class="ms-1">

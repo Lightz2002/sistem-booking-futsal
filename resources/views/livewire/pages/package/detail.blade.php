@@ -36,6 +36,8 @@ new class extends Component {
 <div class="">
     <x-alert name="success-alert"></x-alert>   
 
+    <h1 class="mb-4 font-bold text-2xl">View Packages</h1>
+
     <x-tabs :tabs="['Main', 'Detail']">
         <x-slot name="content">
             <div  x-show="activeTab === 0" class="bg-gray-800 text-white p-8 rounded-md rounded-r-md grid sm:grid-cols-2 gap-4">
