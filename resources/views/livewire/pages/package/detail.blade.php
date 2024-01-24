@@ -25,6 +25,20 @@ new class extends Component {
     {
         return [
             'package' => $this->package,
+            'detailColumns' => [
+                [
+                    'key' => 'start_time',
+                    'label' => 'Start Time'
+                ],
+                [
+                    'key' => 'end_time',
+                    'label' => 'End Time'
+                ],
+                [
+                    'key' => 'price',
+                    'label' => 'Price'
+                ]
+            ]
         ];
     }
 }
@@ -40,33 +54,75 @@ new class extends Component {
 
     <x-tabs :tabs="['Main', 'Detail']">
         <x-slot name="content">
-            <div  x-show="activeTab === 0" class="bg-gray-800 text-white p-8 rounded-md rounded-r-md grid sm:grid-cols-2 gap-4">
-                <div class="rounded-md h-80 md:flex-shrink-0 mb-6">
-                    <img src="{{ asset($package->image) }}" alt="{{ $package->name }}"
-                    class="h-full w-full object-cover mb-4 border border-white">
-                </div>
-    
-                <div class="grid grid-cols-2 gap-8 content-start">
-                    <div>
-                        <h3 class="font-bold text-lg">Code</h3>
-                        <h3 class="text-md">{{ $package->code }}</h3>
+            <div class="bg-gray-800 text-white p-8 rounded-md">
+                <div  x-show="activeTab === 0" class="rounded-r-md grid sm:grid-cols-2 gap-4">
+                    <div class="rounded-md h-80 md:flex-shrink-0 mb-6">
+                        <img src="{{ asset($package->image) }}" alt="{{ $package->name }}"
+                        class="h-full w-full object-cover mb-4 border border-white">
                     </div>
-                    <div>
-                        <h3 class="font-bold text-lg">Name</h3>
-                        <h3 class="text-md">{{ $package->name }}</h3>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg">Valid End</h3>
-                        <h3 class="text-md">{{ $package->valid_end }}</h3>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg">Status</h3>
-                        <h3 class="text-md">{{ $package->status }}</h3>
+        
+                    <div class="grid grid-cols-2 gap-8 content-start ">
+                        <x-detail-desc label="Code" :value="$package->code" />
+                        <x-detail-desc label="Name" :value="$package->name" />
+                        <x-detail-desc label="Valid End" :value="$package->valid_end" />
+                        <x-detail-desc label="Status" :value="$package->status" />
                     </div>
                 </div>
-            </div>
-            <div x-show="activeTab === 1">
-                <h3>Detail</h3>
+                <div x-show="activeTab === 1" >
+                    <h3 class="font-bold text-lg mb-4">Detail List</h3>
+                    <div class="mb-4  overflow-hidden rounded-lg shadow-md">
+                        <table class="table-auto w-full  text-left  border-slate-200">
+                            <thead>
+                                <tr>
+                                    @foreach ($detailColumns as $column)
+                                        <th
+                                            class="p-3 border-b  border-slate-200 bg-slate-200 text-slate-500 cursor-pointer">
+                                            <div class="flex">
+                                                {{ $column['label'] }}
+                                                {{-- @if ($sortBy === $column->key)
+                                                    @if ($sortDirection === 'asc')
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                                            fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    @else
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                                            fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    @endif
+                                                @endif --}}
+                                            </div>
+                                        </th>
+                                    @endforeach
+                
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($package->package_details as $row)
+                                    <tr>
+                                        @foreach ($detailColumns as $column)
+                                            <td class="p-3 border-b cursor-pointer bg-white text-gray-800 border-slate-200">
+                                                {{-- <div class="py-3 px-6 text-gray-800 flex items-center cursor-pointer"> --}}
+                                                {{-- <x-dynamic-component :id="$row['id']" :component="$column['component']" :value="$row[$column['key']]" :row="$row">
+                                                </x-dynamic-component> --}}
+                                                {{ $row[$column['key']] }}
+                                                {{-- </div> --}}
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                
+                        {{-- Pagination --}}
+                    </div>
+                
+                </div>
             </div>
         </x-slot>
     </x-tabs>
