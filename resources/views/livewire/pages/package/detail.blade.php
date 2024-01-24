@@ -16,9 +16,10 @@ new class extends Component {
 
     public $package;
     public $search = '';
+    public $sortBy = 'created_at';
+    public $sortDirection = 'asc';
 
     public function mount(Package $package) {
-        // $this->form = new EditPackageForm(); // Instantiate the form
         $this->form->setPackage($package);
         $this->package = $package;
     }
@@ -26,13 +27,11 @@ new class extends Component {
     public function with(): array
     {
         $packageDetails =  PackageDetail::filter($this->search)
-        ->where('package_id', $this->package->id
-        )->paginate(2);
+        ->where('package_id', $this->package->id)
+        ->orderBy($this->sortBy, $this->sortDirection)
+        ->paginate(1);
 
-        return [
-            'package' => $this->package,
-            'details' => $packageDetails,
-            'detailColumns' => [
+        $packageDetailColumns = [
                 [
                     'key' => 'start_time',
                     'label' => 'Start Time'
@@ -45,13 +44,33 @@ new class extends Component {
                     'key' => 'price',
                     'label' => 'Price'
                 ]
-            ]
+        ];
+
+        return [
+            'package' => $this->package,
+            'details' => $packageDetails,
+            'detailColumns' => $packageDetailColumns
         ];
     }
 
     public function searchPackageDetails() {
         $this->resetPage();
     }
+
+    function sort($key) {
+        $this->resetPage();
+
+        if ($this->sortBy === $key) {
+            $direction = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+            $this->sortDirection = $direction;
+
+            return;
+        }
+
+        $this->sortBy = $key;
+        $this->sortDirection = 'asc';
+    }
+
 }
 
 //
@@ -85,56 +104,8 @@ new class extends Component {
                     <div class="mb-4  overflow-hidden rounded-lg shadow-md">
                         <x-search model="search" search="searchPackageDetails" class="text-gray-800"/>
 
-                        <table class="table-auto w-full  text-left  border-slate-200 mb-2">
-                            <thead>
-                                <tr>
-                                    @foreach ($detailColumns as $column)
-                                        <th
-                                            class="p-3 border-b  border-slate-200 bg-slate-200 text-slate-500 cursor-pointer">
-                                            <div class="flex">
-                                                {{ $column['label'] }}
-                                                {{-- @if ($sortBy === $column->key)
-                                                    @if ($sortDirection === 'asc')
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                                            fill="currentColor">
-                                                            <path fill-rule="evenodd"
-                                                                d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"
-                                                                clip-rule="evenodd" />
-                                                        </svg>
-                                                    @else
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                                            fill="currentColor">
-                                                            <path fill-rule="evenodd"
-                                                                d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-                                                                clip-rule="evenodd" />
-                                                        </svg>
-                                                    @endif
-                                                @endif --}}
-                                            </div>
-                                        </th>
-                                    @endforeach
-                
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($details as $row)
-                                    <tr>
-                                        @foreach ($detailColumns as $column)
-                                            <td class="p-3 border-b cursor-pointer bg-white text-gray-800 border-slate-200">
-                                                {{-- <div class="py-3 px-6 text-gray-800 flex items-center cursor-pointer"> --}}
-                                                {{-- <x-dynamic-component :id="$row['id']" :component="$column['component']" :value="$row[$column['key']]" :row="$row">
-                                                </x-dynamic-component> --}}
-                                                {{ $row[$column['key']] }}
-                                                {{-- </div> --}}
-                                            </td>
-                                        @endforeach
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                        
-                        {{ $details->withQueryString()->links()  }}
-
+                        <x-table :details="$details" :detailColumns="$detailColumns" :sortBy="$sortBy"
+                        :sortDirection="$sortDirection"/>
                     </div>
                 </div>
             </div>
