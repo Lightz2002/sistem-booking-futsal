@@ -20,7 +20,15 @@ class Package extends Model
         'name',
         'field_id',
         'valid_end',
+        'image',
     ];
+
+    public function scopeFilter($query, $search = '')
+    {
+        return $query->where('status', 'active')
+            ->where('name', 'like', '%' . $search . '%')
+            ->orWhere('code', 'like', '%' . $search . '%');
+    }
 
     public function field(): BelongsTo
     {
