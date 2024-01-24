@@ -15,7 +15,7 @@ new class extends Component {
     #[Validate('required|min:3|unique:fields,name')]
     public string $name = '';
 
-    #[Validate('file|max:1024')]
+    #[Validate('file|max:1024|nullable')]
     public $image;
 
     public $search = '';
@@ -61,7 +61,7 @@ new class extends Component {
 }; ?>
 
 <div class="h-full  rounded-md mx-auto">
-    <x-alert type="success" name="success-alert"></x-alert>
+    <x-alert name="success-alert"></x-alert>
 
     <div class="flex items-center mb-4">
         <h1 class="font-bold text-2xl">Fields</h1>

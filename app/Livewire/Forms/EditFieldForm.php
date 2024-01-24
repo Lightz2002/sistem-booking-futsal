@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 use Livewire\WithFileUploads;
@@ -10,6 +11,7 @@ class EditFieldForm extends Form
 {
     use WithFileUploads;
 
+    public $id;
     public $name = '';
     public $image;
 
@@ -17,7 +19,7 @@ class EditFieldForm extends Form
     public function rules()
     {
         return [
-            'name' => 'required|min:3',
+            'name' => ['required', 'min:3', Rule::unique('fields')->ignore($this->id)],
             'image' =>  ''
         ];
     }
