@@ -97,7 +97,7 @@ new class extends Component {
         </x-slot>
 
         <x-slot name="content">
-            <form wire:submit="update" action="" class=" block md:flex bg-gray-800 text-white rounded-md py-10 px-6" enctype="multipart/form-data">
+            <form wire:submit="update" action="" class=" block md:flex bg-white text-gray-800 rounded-md py-10 px-6" enctype="multipart/form-data">
                 <div class="rounded-md md:w-1/2 h-80 md:flex-shrink-0 mb-6">
                     <img src="{{ asset($field->image) }}" alt="{{ $field->name }}"
                     class="h-full w-full object-cover mb-4 border-white border">
@@ -106,12 +106,14 @@ new class extends Component {
                         <x-text-input :readonly="!$isEdit" id="image" name="image" model="form.image" type="file" class="{{ $isEdit ? '' : 'bg-transparent border-none p-0 shadow-none' }} md:text-lg"   />
                         <x-input-error :messages="$errors->get('form.image')" class="mt-2" />
                     @endif
+
+                    <div wire:loading wire:target='form.image' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
                 </div>
         
                 <div class="product-detail md:ml-4  grid grid-cols-2 justify-start justify-self-start content-start gap-4 text-white">
                     <div>
-                        <x-input-label for="name" :value="__('Name')" class="text-white md:text-lg"/>
-                        <x-text-input :readonly="!$isEdit" id="name" name="name" model="form.name" class="{{ $isEdit ? 'text-gray-600' : 'bg-transparent border-none p-0 shadow-none text-gray-300' }}  md:text-lg"   />
+                        <x-input-label for="name" :value="__('Name')" class="text-gray-700 md:text-lg"/>
+                        <x-text-input :readonly="!$isEdit" id="name" name="name" model="form.name" class="{{ $isEdit ? 'text-gray-500' : 'bg-transparent border-none p-0 shadow-none text-gray-300' }}  md:text-lg"   />
                         <x-input-error :messages="$errors->get('form.name')" class="mt-2" />
                     </div>
         

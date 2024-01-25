@@ -87,7 +87,13 @@ new class extends Component {
         <h1 class="font-bold text-2xl">Packages</h1>
         <x-primary-button class="ml-auto"
         x-on:click.prevent="$dispatch('open-modal', 'add-package')"
-        >Add</x-primary-button>
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+
+            <span>Add Package</span>
+        </x-primary-button>
     </div>
 
     <x-search model="search" search="searchPackages" />
@@ -172,10 +178,9 @@ new class extends Component {
                     placeholder="{{ __('Image') }}"
                 />
 
-
-                <progress wire:loading wire:target="image" class="bg-indigo-600 progress w-56"></progress>
-
                 <x-input-error :messages="$errors->get('image')" class="mt-2" />
+
+                <div wire:loading wire:target='image' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
             </div>
 
             <div class="mt-6 flex justify-end">

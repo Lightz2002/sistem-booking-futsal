@@ -6,7 +6,7 @@
 ]
 )
 
-<div>
+<div class="mb-4  overflow-hidden rounded-lg shadow-md">
   <table class="table-auto w-full  text-left  border-slate-200 mb-2">
     <thead>
         <tr>
@@ -56,8 +56,11 @@
                         {{-- <div class="py-3 px-6 text-gray-800 flex items-center cursor-pointer"> --}}
                         {{-- <x-dynamic-component :id="$row['id']" :component="$column['component']" :value="$row[$column['key']]" :row="$row">
                         </x-dynamic-component> --}}
-                        {{ $row[$column['key']] }}
+                        {{-- {{ $row[$column['key']] }} --}}
                         {{-- </div> --}}
+                        <x-dynamic-component :id="$row['id']" :component="$column['component'] ?? 'columns.column'" :value="$row[$column['key']]"
+                            :row="$row">
+                        </x-dynamic-component>
                     </td>
                 @endforeach
             </tr>

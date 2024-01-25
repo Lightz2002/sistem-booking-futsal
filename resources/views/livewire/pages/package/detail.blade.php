@@ -6,10 +6,11 @@ use App\Models\PackageDetail;
 use App\Livewire\Forms\EditPackageForm;
 use App\Livewire\Forms\addPackageDetailForm;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 
 
 new class extends Component {
-    use WithPagination;
+    use WithFileUploads, WithPagination;
 
     public EditPackageForm $editPackageForm;
     public AddPackageDetailForm $addPackageDetailForm;
@@ -45,7 +46,13 @@ new class extends Component {
                 ],
                 [
                     'key' => 'price',
-                    'label' => 'Price'
+                    'label' => 'Price',
+                    'component' => 'columns.package_detail.price'
+                ],
+                [
+                    'key' => 'action',
+                    'label' => 'Action',
+                    'component' => 'columns.package_detail.action'
                 ]
         ];
 
@@ -71,6 +78,8 @@ new class extends Component {
     }
 
     public function sort($key) {
+        if ($key === 'action') return;
+
         $this->resetPage();
 
         if ($this->sortBy === $key) {
@@ -134,7 +143,7 @@ new class extends Component {
         </x-slot>
 
         <x-slot name="content">
-            <div class="bg-gray-800 text-white p-8 rounded-md">
+            <div class="bg-white p-8 rounded-md">
                 <div  x-show="activeTab === 0" class="rounded-r-md grid sm:grid-cols-2 gap-4">
                     <div class="rounded-md h-80 md:flex-shrink-0 mb-6">
                         <img src="{{ asset($package->image) }}" alt="{{ $package->name }}"
@@ -150,90 +159,96 @@ new class extends Component {
                 </div>
 
                 <div x-show="activeTab === 1" >
-                    <h3 class="font-bold text-lg mb-4">Detail List</h3>
-                    <div class="mb-4  overflow-hidden rounded-lg shadow-md">
+                    <div class="flex items-center">
+                        <h3 class="font-bold text-lg mb-4">Detail List</h3>
 
-                        <x-search model="search" search="searchPackageDetails" class="text-gray-800">
-                            <x-primary-button class="ml-auto bg-indigo-600 hover:bg-indigo-400"
-                            x-on:click.prevent="$dispatch('open-modal', 'add-package-detail')"
-                            >Add</x-primary-button>
-                        </x-search>
-
-                        <x-table :details="$details" :detailColumns="$detailColumns" :sortBy="$sortBy"
-                        :sortDirection="$sortDirection"/>
-
-                        <x-modal name="add-package-detail">
-                            <form wire:submit.prevent="addPackageDetails" class="p-6 text-gray-800" enctype="multipart/form-data">
-
-                                <h2 class="text-lg font-medium text-gray-900">
-                                    {{ __('Add Package Detail') }}
-                                </h2>
-
-                                <p class="mt-1 text-sm text-gray-600">
-                                    {{ __('') }}
-                                </p>
-
-                                <div class="mt-6">
-                                    <x-input-label for="start_time" value="{{ __('Start Time') }}"  />
-
-                                    <x-text-input
-                                        model="addPackageDetailForm.start_time"
-                                        id="start_time"
-                                        type="time"
-                                        name="start_time"
-                                        class="mt-1 block w-3/4"
-                                        placeholder="{{ __('Start Time') }}"
-                                    />
-
-                                    <x-input-error :messages="$errors->get('addPackageDetailForm.start_time')" class="mt-2" />
-                                </div>
-
-                                <div class="mt-6">
-                                    <x-input-label for="end_time" value="{{ __('End Time') }}"  />
-
-                                    <x-text-input
-                                        model="addPackageDetailForm.end_time"
-                                        id="end_time"
-                                        type="time"
-                                        name="end_time"
-                                        class="mt-1 block w-3/4"
-                                        placeholder="{{ __('End Time') }}"
-                                    />
-
-                                    <x-input-error :messages="$errors->get('addPackageDetailForm.end_time')" class="mt-2" />
-                                </div>
-
-                                <div class="mt-6">
-                                    <x-input-label for="price" value="{{ __('Price') }}"  />
-
-                                    <x-text-input
-                                        model="addPackageDetailForm.price"
-                                        type="text"
-                                        id="price"
-                                        name="price"
-                                        class="mt-1 block w-3/4"
-                                        placeholder="{{ __('Price') }}"
-                                    />
-
-                                    <x-input-error :messages="$errors->get('addPackageDetailForm.price')" class="mt-2" />
-                                </div>
-
-                                <div>
-                                    <x-input-error :messages="$errors->get('addPackageDetailForm.package_id')" class="mt-2" />
-                                </div>
-
-                                <div class="mt-6 flex justify-end">
-                                    <x-secondary-button x-on:click="$dispatch('close');">
-                                        {{ __('Cancel') }}
-                                    </x-secondary-button>
-
-                                    <x-primary-button class="ms-3">
-                                        {{ __('Save') }}
-                                    </x-primary-button>
-                                </div>
-                            </form>
-                        </x-modal>
+                        <x-primary-button class="ml-auto bg-indigo-600 hover:bg-indigo-400"
+                        x-on:click.prevent="$dispatch('open-modal', 'add-package-detail')"
+                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+            
+                        <span>Add Package Detail</span>    
+                        </x-primary-button>
                     </div>
+
+                    <x-search model="search" search="searchPackageDetails" class="text-gray-800" />
+
+                    <x-table :details="$details" :detailColumns="$detailColumns" :sortBy="$sortBy"
+                    :sortDirection="$sortDirection"/>
+
+                    <x-modal name="add-package-detail">
+                        <form wire:submit.prevent="addPackageDetails" class="p-6 text-gray-800" enctype="multipart/form-data">
+
+                            <h2 class="text-lg font-medium text-gray-900">
+                                {{ __('Add Package Detail') }}
+                            </h2>
+
+                            <p class="mt-1 text-sm text-gray-600">
+                                {{ __('') }}
+                            </p>
+
+                            <div class="mt-6">
+                                <x-input-label for="start_time" value="{{ __('Start Time') }}"  />
+
+                                <x-text-input
+                                    model="addPackageDetailForm.start_time"
+                                    id="start_time"
+                                    type="time"
+                                    name="start_time"
+                                    class="mt-1 block w-3/4"
+                                    placeholder="{{ __('Start Time') }}"
+                                />
+
+                                <x-input-error :messages="$errors->get('addPackageDetailForm.start_time')" class="mt-2" />
+                            </div>
+
+                            <div class="mt-6">
+                                <x-input-label for="end_time" value="{{ __('End Time') }}"  />
+
+                                <x-text-input
+                                    model="addPackageDetailForm.end_time"
+                                    id="end_time"
+                                    type="time"
+                                    name="end_time"
+                                    class="mt-1 block w-3/4"
+                                    placeholder="{{ __('End Time') }}"
+                                />
+
+                                <x-input-error :messages="$errors->get('addPackageDetailForm.end_time')" class="mt-2" />
+                            </div>
+
+                            <div class="mt-6">
+                                <x-input-label for="price" value="{{ __('Price') }}"  />
+
+                                <x-text-input
+                                    model="addPackageDetailForm.price"
+                                    type="text"
+                                    id="price"
+                                    name="price"
+                                    class="mt-1 block w-3/4"
+                                    placeholder="{{ __('Price') }}"
+                                />
+
+                                <x-input-error :messages="$errors->get('addPackageDetailForm.price')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-error :messages="$errors->get('addPackageDetailForm.package_id')" class="mt-2" />
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <x-secondary-button x-on:click="$dispatch('close');">
+                                    {{ __('Cancel') }}
+                                </x-secondary-button>
+
+                                <x-primary-button class="ms-3">
+                                    {{ __('Save') }}
+                                </x-primary-button>
+                            </div>
+                        </form>
+                    </x-modal>
                 </div>
             </div>
         </x-slot>
@@ -307,6 +322,8 @@ new class extends Component {
                 />
 
                 <x-input-error :messages="$errors->get('editPackageForm.image')" class="mt-2" />
+
+                <div wire:loading wire:target='editPackageForm.image' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
             </div>
 
             <div>
