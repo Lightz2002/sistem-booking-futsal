@@ -6,8 +6,8 @@
 
 <div class="flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-md bg-opacity-50 fixed bottom-5 right-5" 
     x-data="{ show: false, 
-        type: 'success', 
-        message: '',
+        type: 'Success', 
+        message: 'Data Added Successfully !',
         computeBgColor() {
             switch (this.type.toLowerCase()) {
               case 'info': return 'bg-blue-500';
@@ -51,7 +51,7 @@
     x-transition:leave="transition ease-in duration-300"
     x-transition:leave-start="opacity-100 transform scale-100"
     x-transition:leave-end="opacity-0 transform scale-90"
-    x-on:open-alert.window="type = $event.detail.type; message = $event.detail?.message; $event.detail.name == '{{ $name }}' ? show = true : null; setTimeout(() => show = false, 2500);"
+    x-on:open-alert.window="type = $event.detail?.type ?? type; message = $event.detail?.message ?? message; $event.detail.name == '{{ $name }}' ? show = true : null; setTimeout(() => show = false, 2500);"
     x-on:close="console.log(show); show = false;"
 >
     <div :class="'flex items-center justify-center w-12 ' + computeBgColor() + ' ' + computeColor()" x-html="computeIcon">
