@@ -16,7 +16,7 @@ class PackageDetail extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'package_id ',
+        'package_id',
         'start_time',
         'end_time',
         'price',
