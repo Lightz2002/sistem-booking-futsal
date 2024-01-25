@@ -4,8 +4,8 @@
 ])
 
 
-<div class="flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-md bg-opacity-50 fixed bottom-5 right-5" 
-    x-data="{ show: false, 
+<div class="flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-md fixed bottom-5 right-5" 
+    x-data="{ show: @js($show), 
         type: 'Success', 
         message: 'Data Added Successfully !',
         computeBgColor() {
@@ -46,11 +46,11 @@
           }, 
     }" x-show="show" x-cloak 
     x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0 transform scale-90"
-    x-transition:enter-end="opacity-100 transform scale-100"
+    x-transition:enter-start="transform scale-90"
+    x-transition:enter-end="transform scale-100"
     x-transition:leave="transition ease-in duration-300"
-    x-transition:leave-start="opacity-100 transform scale-100"
-    x-transition:leave-end="opacity-0 transform scale-90"
+    x-transition:leave-start="transform scale-100"
+    x-transition:leave-end="transform scale-90"
     x-on:open-alert.window="type = $event.detail?.type ?? type; message = $event.detail?.message ?? message; $event.detail.name == '{{ $name }}' ? show = true : null; setTimeout(() => show = false, 2500);"
     x-on:close="console.log(show); show = false;"
 >
