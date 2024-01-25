@@ -5,8 +5,10 @@ use App\Models\Package;
 use App\Models\PackageDetail;
 use App\Livewire\Forms\EditPackageForm;
 use App\Livewire\Forms\addPackageDetailForm;
+use App\Livewire\Forms\EditPackageDetailForm;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\On;
 
 
 new class extends Component {
@@ -14,10 +16,12 @@ new class extends Component {
 
     public EditPackageForm $editPackageForm;
     public AddPackageDetailForm $addPackageDetailForm;
+    public EditPackageDetailForm $editPackageDetailForm;
 
     public $isEdit = false;
 
     public $package;
+    public PackageDetail $packageDetail;
     public $search = '';
     public $sortBy = 'start_time';
     public $sortDirection = 'asc';
@@ -26,6 +30,7 @@ new class extends Component {
         $this->editPackageForm->setPackage($package);
         $this->addPackageDetailForm->setPackageId($package->id);
         $this->package = $package;
+        $this->packageDetail = new PackageDetail();
     }
 
     public function with(): array
@@ -58,6 +63,7 @@ new class extends Component {
 
         return [
             'package' => $this->package,
+            'packageDetail' => $this->packageDetail,
             'details' => $packageDetails,
             'detailColumns' => $packageDetailColumns
         ];
@@ -105,6 +111,13 @@ new class extends Component {
         $this->dispatch('close-modal', 'add-package-detail');
     }
 
+    public function viewPackageDetail($id)
+    {
+        $this->packageDetail = PackageDetail::firstWhere("id", $id);
+        if ($this->packageDetail) {
+            $this->dispatch('open-modal', 'view-package-detail');
+        }
+    }
 }
 
 //
@@ -178,6 +191,7 @@ new class extends Component {
                     <x-table :details="$details" :detailColumns="$detailColumns" :sortBy="$sortBy"
                     :sortDirection="$sortDirection"/>
 
+                    {{-- add package detail --}}
                     <x-modal name="add-package-detail">
                         <form wire:submit.prevent="addPackageDetails" class="p-6 text-gray-800" enctype="multipart/form-data">
 
@@ -249,96 +263,15 @@ new class extends Component {
                             </div>
                         </form>
                     </x-modal>
+
+                    {{-- view package detail --}}
+                    <x-forms.package_detail.show :packageDetail="$packageDetail"/>
+
+                    <x-forms.package_detail.edit packageDetail="$packageDetail"/>
                 </div>
             </div>
         </x-slot>
     </x-tabs>
 
-    <x-modal name="edit-package" :show="false">
-        <form wire:submit.prevent="editPackage" class="p-6 text-gray-800" enctype="multipart/form-data">
-
-            <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Edit Package') }}
-            </h2>
-
-            <p class="mt-1 text-sm text-gray-600">
-                {{ __('') }}
-            </p>
-
-            <div class="mt-6">
-                <x-input-label for="code" value="{{ __('Start Time') }}"  />
-
-                <x-text-input
-                    model="editPackageForm.code"
-                    id="code"
-                    name="code"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Code') }}"
-                />
-
-                <x-input-error :messages="$errors->get('editPackageForm.code')" class="mt-2" />
-            </div>
-
-            <div class="mt-6">
-                <x-input-label for="name" value="{{ __('Name') }}"  />
-
-                <x-text-input
-                    model="editPackageForm.name"
-                    id="name"
-                    name="name"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Name') }}"
-                />
-
-                <x-input-error :messages="$errors->get('editPackageForm.name')" class="mt-2" />
-            </div>
-
-            <div class="mt-6">
-                <x-input-label for="valid_end" value="{{ __('Valid End') }}"  />
-
-                <x-text-input
-                    model="editPackageForm.valid_end"
-                    id="valid_end"
-                    type="date"
-                    name="valid_end"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Valid End') }}"
-                />
-
-                <x-input-error :messages="$errors->get('editPackageForm.valid_end')" class="mt-2" />
-            </div>
-
-            <div class="mt-6">
-                <x-input-label for="image" value="{{ __('Image') }}"  />
-
-                <x-text-input
-                    model="editPackageForm.image"
-                    id="image"
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Image') }}"
-                />
-
-                <x-input-error :messages="$errors->get('editPackageForm.image')" class="mt-2" />
-
-                <div wire:loading wire:target='editPackageForm.image' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
-            </div>
-
-            <div>
-                <x-input-error :messages="$errors->get('editPackageForm.id')" class="mt-2" />
-            </div>
-
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close');">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
-
-                <x-primary-button class="ms-3">
-                    {{ __('Save') }}
-                </x-primary-button>
-            </div>
-        </form>
-    </x-modal>
+   <x-forms.package.edit />
 </div>
