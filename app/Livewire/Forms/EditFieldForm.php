@@ -19,7 +19,7 @@ class EditFieldForm extends Form
     public function rules()
     {
         return [
-            'name' => ['required', 'min:3', Rule::unique('fields')->ignore($this->id)],
+            'name' => ['required', 'min:2', Rule::unique('fields')->ignore($this->id)],
             'image' =>  ''
         ];
     }

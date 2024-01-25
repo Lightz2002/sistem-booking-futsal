@@ -17,9 +17,13 @@ class EditPackageForm extends Form
     public $id;
 
     public $code = '';
+
+    #[Validate('required')]
     public $name = '';
     public $valid_end = '';
     public $status = '';
+
+    #[Validate('file|max:1024|nullable')]
     public $image;
 
     public function setPackage(Package $package)
@@ -34,8 +38,8 @@ class EditPackageForm extends Form
     public function rules()
     {
         return [
-            'name' => ['required', 'min:3', Rule::unique('packages')->ignore($this->id)],
-            'image' =>  ''
+            'code' => ['required',  Rule::unique('packages')->ignore($this->id)],
+            'image' =>  'file|nullable'
         ];
     }
 
