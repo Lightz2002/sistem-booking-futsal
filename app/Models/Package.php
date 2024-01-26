@@ -25,9 +25,9 @@ class Package extends Model
         'status'
     ];
 
-    public function scopeFilter($query, $search = '')
+    public function scopeFilter($query, $search = '', $status = '')
     {
-        return $query->where('status', 'active')
+        return $query->where('status', $status)
             ->where(function ($query) use ($search) {
                 return $query->where('name', 'like', '%' . $search . '%')
                     ->orWhere('code', 'like', '%' . $search . '%');

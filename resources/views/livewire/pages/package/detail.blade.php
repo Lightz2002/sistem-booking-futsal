@@ -24,6 +24,7 @@ new class extends Component {
 
     public $package;
     public PackageDetail $packageDetail;
+    
     #[Url(as: 'q')]
     public $search = '';
     #[Url(as: 'sort')]
@@ -206,6 +207,11 @@ new class extends Component {
                     x-on:click.prevent="$dispatch('open-modal', 'delete-package')"
                     >
                         {{ __('Delete') }}
+                    </x-dropdown-button>
+                    <x-dropdown-button
+                    x-on:click.prevent="$dispatch('open-modal', 'confirm-package')"
+                    >
+                        {{ __('Change To Confirmed') }}
                     </x-dropdown-button>
                 </x-slot>
             </x-dropdown>

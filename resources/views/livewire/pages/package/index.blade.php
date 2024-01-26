@@ -16,7 +16,8 @@ new class extends Component {
     {
         return [
             'fields' => Field::filter($this->field)->select('name')->get(),
-            'packages' => Package::filter($this->search)->get(),
+            'packages' => Package::filter($this->search, $this->status)->get(),
+            'status' => $this->status,
         ];
     }
 
@@ -37,6 +38,9 @@ new class extends Component {
 
     #[Url(as: 'q')]
     public $search = '';
+
+    #[Url(as: 'status')]
+    public $status = 'verifying';
 
     public function searchPackages() {
         $this->resetPage();
@@ -77,6 +81,10 @@ new class extends Component {
     public function redirectToDetail($id) {
         $this->redirectRoute('packages.detail', ['package' => $id]);
     }
+
+    public function filterStatus($status) {
+        $this->status = $status;
+    }
 }
 //
 
@@ -98,6 +106,7 @@ new class extends Component {
         </x-primary-button>
     </div>
 
+    <x-status-bar :statuses="['verifying', 'confirmed']" :selectedStatus="$status"></x-status-bar>
     <x-search model="search" search="searchPackages" />
 
     {{-- create form --}}
