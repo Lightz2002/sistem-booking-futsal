@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('package_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Package::class);
+            $table->foreignIdFor(Package::class)->constrained();
             $table->time('start_time');
             $table->time('end_time');
             $table->decimal('price', 10, 2);
