@@ -121,7 +121,7 @@ new class extends Component
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             @foreach($menus as $menu)
-                <x-responsive-nav-link :href="route($menu['route'])" :active="request()->is($menu['name'].'*')" wire:navigate>
+                <x-responsive-nav-link :href="route($menu['route'])" :active="request()->routeIs($menu['route'].'*')" wire:navigate>
                     {{ __(ucwords($menu['name'])) }}
                 </x-responsive-nav-link>
             @endforeach
