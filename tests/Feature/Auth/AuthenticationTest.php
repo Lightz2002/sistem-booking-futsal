@@ -33,7 +33,7 @@ class AuthenticationTest extends TestCase
 
         $component
             ->assertHasNoErrors()
-            ->assertRedirect(RouteServiceProvider::HOME);
+            ->assertRedirect(RouteServiceProvider::getHomeRoute());
 
         $this->assertAuthenticated();
     }

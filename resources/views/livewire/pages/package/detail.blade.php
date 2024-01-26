@@ -238,6 +238,7 @@ new class extends Component {
     <h1 class="mb-4 font-bold text-2xl">View Packages</h1>
 
     <x-tabs :tabs="['Main', 'Detail']">
+        @if ($this->package->status !== 'confirmed')
         <x-slot name="dropdown">
             <x-dropdown class="ml-auto" >
                 <x-slot name="trigger">
@@ -271,6 +272,7 @@ new class extends Component {
                 </x-slot>
             </x-dropdown>
         </x-slot>
+        @endif
 
         <x-slot name="content">
             <div class="bg-white p-8 rounded-md">
@@ -292,15 +294,16 @@ new class extends Component {
                     <div class="flex items-center">
                         <h3 class="font-bold text-lg mb-4">Detail List</h3>
 
-                        <x-primary-button class="ml-auto bg-indigo-600 hover:bg-indigo-400"
-                        x-on:click.prevent="$dispatch('open-modal', 'add-package-detail')"
-                        >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
-            
-                        <span>Add Package Detail</span>    
-                        </x-primary-button>
+                        @if ($this->package->status !== 'confirmed')
+                            <x-primary-button class="ml-auto bg-indigo-600 hover:bg-indigo-400"
+                            x-on:click.prevent="$dispatch('open-modal', 'add-package-detail')"
+                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            <span>Add Package Detail</span>    
+                            </x-primary-button>
+                        @endif
                     </div>
 
                     <x-search model="search" search="searchPackageDetails" class="text-gray-800" />
@@ -312,7 +315,7 @@ new class extends Component {
                     <x-forms.package_detail.add :packageDetail="$packageDetail"/>
 
                     {{-- view package detail --}}
-                    <x-forms.package_detail.show :packageDetail="$packageDetail"/>
+                    <x-forms.package_detail.show :package="$package" :packageDetail="$packageDetail"/>
 
                     {{-- edit package detail --}}
                     <x-forms.package_detail.edit packageDetail="$packageDetail"/>

@@ -33,7 +33,7 @@ class RegistrationTest extends TestCase
 
         $component->call('register');
 
-        $component->assertRedirect(RouteServiceProvider::HOME);
+        $component->assertRedirect(RouteServiceProvider::getHomeRoute());
 
         $this->assertAuthenticated();
     }

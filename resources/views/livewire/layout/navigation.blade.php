@@ -14,12 +14,10 @@ new class extends Component
     {
         switch(auth()->user()->role) {
             case 'customer':
-                // $menus = ['booking', 'history'];
                 $menus = ['dashboard'];
                 break;
             case 'admin':
-                // $menus = ['field', 'package', 'booking'];
-                $menus = ['dashboard', 'fields', 'packages'];
+                $menus = ['fields', 'packages'];
                 break;
         }
 

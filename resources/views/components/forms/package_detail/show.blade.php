@@ -1,5 +1,6 @@
 @props([
-  'packageDetail'
+  'packageDetail',
+  'package'
 ])
 
 <x-modal name="view-package-detail">
@@ -20,7 +21,10 @@
                   </button>
               </x-slot>
 
+
               <x-slot name="content">
+                @if ($this->package->status !== 'confirmed')
+
                   <x-dropdown-button
                   x-on:click.prevent="$dispatch('open-modal', 'edit-package-detail')"
                   >
@@ -31,6 +35,12 @@
                   >
                       {{ __('Delete') }}
                   </x-dropdown-button>
+                @else
+                <x-dropdown-button
+                >
+                    {{ __('No Actions Available') }}
+                </x-dropdown-button>
+                @endif
               </x-slot>
           </x-dropdown>
       </div>
