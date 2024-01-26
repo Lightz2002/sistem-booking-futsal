@@ -1,5 +1,5 @@
 <x-modal name="add-package-detail">
-  <form wire:submit.prevent="addPackageDetails" class="p-6 text-gray-800" enctype="multipart/form-data">
+  <form wire:submit.prevent="addPackageDetail" class="p-6 text-gray-800" enctype="multipart/form-data">
 
       <h2 class="text-lg font-medium text-gray-900">
           {{ __('Add Package Detail') }}

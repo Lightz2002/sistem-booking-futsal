@@ -51,7 +51,7 @@
     x-transition:leave="transition ease-in duration-300"
     x-transition:leave-start="transform scale-100"
     x-transition:leave-end="transform scale-90"
-    x-on:open-alert.window="type = $event.detail?.type ?? type; message = $event.detail?.message ?? message; $event.detail.name == '{{ $name }}' ? show = true : null; setTimeout(() => show = false, 2500);"
+    x-on:open-alert.window="type = $event.detail?.type ?? type; message = $event.detail?.message ?? message; $event.detail.name == '{{ $name }}' ? show = true : null; setTimeout(() => show = false, 5000);"
     x-on:close="console.log(show); show = false;"
 >
     <div :class="'flex items-center justify-center w-12 ' + computeBgColor() + ' ' + computeColor()" x-html="computeIcon">

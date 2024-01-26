@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Livewire\Volt\Component;
 use App\Models\Package;
 use App\Models\PackageDetail;
+use App\Models\Allotment;
 use App\Livewire\Forms\EditPackageForm;
 use App\Livewire\Forms\addPackageDetailForm;
 use App\Livewire\Forms\EditPackageDetailForm;
@@ -11,6 +12,7 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
+use Illuminate\Support\Facades\DB;
 
 
 new class extends Component {
@@ -131,7 +133,7 @@ new class extends Component {
         $this->sortDirection = 'asc';
     }
 
-    public function addPackageDetails() {
+    public function addPackageDetail() {
         $this->addPackageDetailForm->validate();
 
         $this->addPackageDetailForm->store();
@@ -169,6 +171,58 @@ new class extends Component {
         $this->dispatch('close-modal', 'delete-package-detail');
         $this->dispatch('open-alert', name: 'delete-package-detail-alert', type: 'Success', message: 'Package Detail Deleted Successfully !');
     }
+
+    private function validateConfirmPackage() {
+        $today = Carbon::parse(todayDate());
+        $validEnd = Carbon::parse($this->package->valid_end);
+
+        return $validEnd->lessThan($today) ? throw new Exception('Package valid end must be after today !') : false;
+    }
+
+    private function generateAvailableAllotment(PackageDetail $detail, int $day) {
+        return [
+            'package_id' => $this->package->id,
+            'field_id' => $this->package->field_id,
+            'date' => Carbon::now()->addDays($day)->format('Y-m-d'),
+            'start_time' => $detail->start_time,
+            'end_time' => $detail->end_time,
+            'price' => $detail->price,
+            'status' => 'available',
+            'created_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+            'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+        ];
+    }
+
+    public function confirmPackage() {
+        try {
+            $this->validateConfirmPackage();
+
+            DB::transaction(function() {
+                $today = todayDate();
+                $validEnd = $this->package->valid_end;
+
+                $totalValidAllotmentDays = Carbon::parse($today)->diffInDays(Carbon::parse($validEnd));
+
+                $allotmentInstance = [];
+                for ($day = 0; $day <= $totalValidAllotmentDays; $day++) {
+                    foreach($this->package->package_details as $detail) {
+                        $allotmentInstance[] = $this->generateAvailableAllotment($detail, $day);
+                    }
+                }
+
+                DB::table('allotments')->insert($allotmentInstance);
+
+                $this->package->update(['status' => 'confirmed']);
+            });
+
+            $this->dispatch('close-modal', 'confirm-package');
+            $this->dispatch('open-alert', name: 'confirm-package-alert', type: 'Success', message: 'Package Confirmed Successfully !');
+            $this->redirectRoute('packages');
+        } catch (Exception $e) {
+            $this->dispatch('close-modal', 'confirm-package');
+            $this->dispatch('open-alert', name: 'confirm-package-alert', type: 'Error', message: $e->getMessage());
+        }
+    }
 }
 
 ?>
@@ -176,6 +230,7 @@ new class extends Component {
 <div class="">
     <x-alert name="edit-package-alert"></x-alert>
     <x-alert name="delete-package-alert"></x-alert>
+    <x-alert name="confirm-package-alert"></x-alert>
     <x-alert name="add-detail-alert"></x-alert>
     <x-alert name="edit-package-detail-alert"></x-alert>
     <x-alert name="delete-package-detail-alert"></x-alert>
@@ -271,4 +326,5 @@ new class extends Component {
 
    <x-forms.package.edit />
    <x-forms.package.delete />
+   <x-forms.package.confirm />
 </div>
