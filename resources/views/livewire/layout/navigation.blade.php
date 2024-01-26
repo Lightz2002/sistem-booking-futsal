@@ -14,10 +14,32 @@ new class extends Component
     {
         switch(auth()->user()->role) {
             case 'customer':
-                $menus = ['dashboard'];
+                $menus = [
+                    [
+                        'name' => 'dashboard',
+                        'route' => 'dashboard'
+                    ],
+                    [
+                        'name' => 'bookings',
+                        'route' => 'customer-bookings'
+                    ]
+                ];
                 break;
             case 'admin':
-                $menus = ['fields', 'packages'];
+                $menus = [
+                    [
+                        'name' => 'fields',
+                        'route' => 'fields'
+                    ],
+                    [
+                        'name' => 'packages',
+                        'route' => 'packages'
+                    ],
+                    [
+                        'name' => 'bookings',
+                        'route' => 'admin-bookings'
+                    ]
+                ];
                 break;
         }
 
@@ -46,13 +68,11 @@ new class extends Component
                     <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
 
                     @foreach($menus as $menu)
-                        <a href="{{ route("$menu") }}" wire:navigate>
+                        <a href="{{ route($menu['route']) }}" wire:navigate>
                         </a>
                     @endforeach
 
                 </div>
-
-                
             </div>
 
             <!-- Settings Dropdown -->
@@ -101,8 +121,8 @@ new class extends Component
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             @foreach($menus as $menu)
-                <x-responsive-nav-link :href="route($menu)" :active="request()->routeIs($menu)" wire:navigate>
-                    {{ __(ucwords($menu)) }}
+                <x-responsive-nav-link :href="route($menu['route'])" :active="request()->is($menu['name'].'*')" wire:navigate>
+                    {{ __(ucwords($menu['name'])) }}
                 </x-responsive-nav-link>
             @endforeach
         </div>

@@ -32,6 +32,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Volt::route('/', 'pages.package.index')->name('packages');
             Volt::route('/{package}', 'pages.package.detail')->name('packages.detail');
         });
+
+        Route::prefix('/admin-bookings')->group(function () {
+            Volt::route('/', 'pages.admin-booking.index')->name('admin-bookings');
+        });
+    });
+
+    Route::middleware(['iscustomer'])->group(function () {
+        Route::prefix('/customer-bookings')->group(function () {
+            Volt::route('/', 'pages.customer-booking.index')->name('customer-bookings');
+        });
     });
 });
 

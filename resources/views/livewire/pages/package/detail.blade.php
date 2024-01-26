@@ -176,7 +176,7 @@ new class extends Component {
         $today = Carbon::parse(todayDate());
         $validEnd = Carbon::parse($this->package->valid_end);
 
-        return $validEnd->lessThan($today) ? throw new Exception('Package valid end must be after today !') : false;
+        if ($validEnd->lessThan($today)) throw new Exception('Package valid end must be after today !');
     }
 
     private function generateAvailableAllotment(PackageDetail $detail, int $day) {
