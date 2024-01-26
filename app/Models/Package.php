@@ -22,13 +22,16 @@ class Package extends Model
         'field_id',
         'valid_end',
         'image',
+        'status'
     ];
 
     public function scopeFilter($query, $search = '')
     {
         return $query->where('status', 'active')
-            ->where('name', 'like', '%' . $search . '%')
-            ->orWhere('code', 'like', '%' . $search . '%');
+            ->where(function ($query) use ($search) {
+                return $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('code', 'like', '%' . $search . '%');
+            });
     }
 
     public function field(): BelongsTo

@@ -7,6 +7,7 @@ use Livewire\Attributes\Validate;
 use App\Models\Field;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 
 new class extends Component {
 
@@ -18,6 +19,7 @@ new class extends Component {
     #[Validate('file|max:1024|nullable')]
     public $image;
 
+    #[Url(as: 'q')]
     public $search = '';
 
 

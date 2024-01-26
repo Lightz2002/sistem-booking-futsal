@@ -9,11 +9,15 @@ use App\Models\Package;
 use App\Models\PackageDetail;
 use App\Rules\ExistPackageTime;
 use App\Rules\StrToTimeBeforeOrEqual;
+use Carbon\Carbon;
 use Closure;
 
 class   EditPackageDetailForm extends Form
 {
 
+  public ?PackageDetail $packageDetail;
+
+  public $id;
   public $package_id;
   public $start_time = '';
   public $end_time = '';
@@ -26,9 +30,15 @@ class   EditPackageDetailForm extends Form
       'start_time' => [
         'required',
         function (string $attribute, mixed $value, Closure $fail) {
-          $existStartTime = PackageDetail::whereRaw("start_time <= CONCAT(?, ':00')", [$value])
-            ->whereRaw("end_time > CONCAT(?, ':00')", [$value])
+          $formattedTime = addOneDayIfPastMidnight(formatToDateTime($value));
+
+          $sqlStartTimePastMidnight = sqlStartTimePastMidnight();
+          $sqlEndTimePastMidnight = sqlEndTimePastMidnight();
+
+          $existStartTime = PackageDetail::whereRaw("$sqlStartTimePastMidnight <= ?", [$formattedTime])
+            ->whereRaw("$sqlEndTimePastMidnight > ?", [$formattedTime])
             ->where("package_id", [$this->package_id])
+            ->whereNot('id', $this->id)
             ->first();
 
           if ($existStartTime) {
@@ -39,13 +49,23 @@ class   EditPackageDetailForm extends Form
       'end_time' => [
         'required', new StrToTimeBeforeOrEqual($this->start_time),
         function (string $attribute, mixed $value, Closure $fail) {
-          $existEndTime = PackageDetail::whereRaw("start_time < CONCAT(?, ':00')", [$value])
-            ->whereRaw("end_time >= CONCAT(?, ':00')", [$value])
+          $today = todayDate();
+          $formattedEndTime = addOneDayIfPastMidnight(formatToDateTime($value));
+          $formattedStartTime = addOneDayIfPastMidnight(formatToDateTime($this->start_time));
+
+          $sqlStartTimePastMidnight = sqlStartTimePastMidnight();
+          $sqlEndTimePastMidnight = sqlEndTimePastMidnight();
+
+          $existEndTime = PackageDetail::whereRaw("$sqlStartTimePastMidnight < ?", [$formattedEndTime])
+            ->whereRaw("$sqlEndTimePastMidnight >= ?", [$value])
             ->where("package_id", [$this->package_id])
+            ->where('id', '!=', $this->id)
             ->first();
 
-          $existTime = PackageDetail::whereRaw("start_time >= CONCAT(?, ':00')", [$this->start_time])
-            ->whereRaw("end_time <= CONCAT(?, ':00')", [$value])
+          $existTime = PackageDetail::whereRaw("$sqlStartTimePastMidnight >= ?", [$formattedStartTime])
+            ->whereRaw("$sqlEndTimePastMidnight <= ?", [$formattedEndTime])
+            ->where("package_id", [$this->package_id])
+            ->where('id', '!=', $this->id)
             ->first();
 
           if ($existEndTime || $existTime) {
@@ -57,13 +77,20 @@ class   EditPackageDetailForm extends Form
     ];
   }
 
-  public function setPackageId($package_id)
+  public function setPackageDetail(PackageDetail $packageDetail)
   {
-    $this->package_id = $package_id;
+    $carbonStartTime  = Carbon::createFromTimeString($packageDetail->start_time);
+    $carbonEndTime = Carbon::createFromTimeString($packageDetail->end_time);
+
+    $this->id = $packageDetail->id;
+    $this->package_id = $packageDetail->package_id;
+    $this->start_time = $carbonStartTime->format('H:i');
+    $this->end_time =  $carbonEndTime->format('H:i');
+    $this->price = $packageDetail->price;
   }
 
-  public function store()
+  public function update(PackageDetail $packageDetail)
   {
-    PackageDetail::create($this->all());
+    $packageDetail->update($this->all());
   }
 }

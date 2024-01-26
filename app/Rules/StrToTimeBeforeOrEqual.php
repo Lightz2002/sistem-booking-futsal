@@ -2,8 +2,10 @@
 
 namespace App\Rules;
 
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+
 
 class StrToTimeBeforeOrEqual implements ValidationRule
 {
@@ -20,7 +22,13 @@ class StrToTimeBeforeOrEqual implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (strtotime($value) <= strtotime($this->strtime)) {
+        $endTime = addOneDayIfPastMidnight(formatToDateTime($value));
+        $startTime = addOneDayIfPastMidnight(formatToDateTime($this->strtime));
+
+        $carbonStartTime =  Carbon::parse($startTime);
+        $carbonEndTime =  Carbon::parse($endTime);
+
+        if ($carbonEndTime->lessThanOrEqualTo($carbonStartTime)) {
             $fail("The $attribute must be after than start time !");
         }
     }

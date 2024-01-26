@@ -26,6 +26,11 @@
                   >
                       {{ __('Edit') }}
                   </x-dropdown-button>
+                  <x-dropdown-button
+                  x-on:click.prevent="$dispatch('open-modal', 'delete-package-detail')"
+                  >
+                      {{ __('Delete') }}
+                  </x-dropdown-button>
               </x-slot>
           </x-dropdown>
       </div>
