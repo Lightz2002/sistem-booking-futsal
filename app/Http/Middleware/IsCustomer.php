@@ -15,6 +15,6 @@ class IsCustomer
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return auth()->user()->role !== 'customer' ? route('login') : $next($request);
+        return auth()->user()->role !== 'customer' ? redirect('login') : $next($request);
     }
 }
