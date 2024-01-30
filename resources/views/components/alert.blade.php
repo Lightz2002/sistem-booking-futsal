@@ -1,10 +1,11 @@
 @props([
+    'class' => '',
     'name',
     'show' => false,
 ])
 
 
-<div class="flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-md fixed bottom-5 right-5" 
+<div class="flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-md fixed top-0 right-0 {{ $class }}" 
     x-data="{ show: @js($show), 
         type: 'Success', 
         message: 'Data Added Successfully !',

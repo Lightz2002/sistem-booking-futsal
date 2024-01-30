@@ -41,6 +41,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['iscustomer'])->group(function () {
         Route::prefix('/customer-bookings')->group(function () {
             Volt::route('/', 'pages.customer-booking.index')->name('customer-bookings');
+            Volt::route('/{field}', 'pages.customer-booking.field-detail')->name('customer-bookings.field-detail');
+        });
+
+        Route::prefix('/payments')->group(function () {
+            Volt::route('/', 'pages.customer-payment.index')->name('customer-payments');
         });
     });
 });

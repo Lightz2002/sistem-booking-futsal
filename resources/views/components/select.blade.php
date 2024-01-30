@@ -2,14 +2,16 @@
 
 @props(['options' => [], 'model' => '', 'placeholder' => 'Select an option', 'data' => [], 'allowInput' => false])
 
-<div class="relative  w-3/4 " x-data="{ open: false }">
+<div class="relative  w-3/4 z-9999" x-data="{ open: false }">
     <x-text-input class="mt-1 block  w-full overflow-x-hidden overflow-y-auto" @focus="open = true;" 
     x-on:click.away="open = false"
     wire:model.live="{{ $model }}">
     </x-text-input>
 
-    <ul x-show="open" @close-autocomplete.window="open = false" class="absolute top-15 bg-white w-full shadow-md rounded-md max-h-40 overflow-y-auto py-4"
-    x-bind:class="{ 'overflow-hidden': open }">
+    <ul x-show="open" @close-autocomplete.window="open = false" class="absolute top-15 bg-white w-full shadow-md rounded-md max-h-40 overflow-y-auto py-4">
+    {{-- x-bind:class="{ 'overflow-hidden': open }"> --}}
+        <li @click="$wire.{{ $model }} = '';" class="cursor-pointer px-4 py-2 hover:bg-indigo-600 hover:text-white">-- Select Options --</li>
+
         @if (count($options) === 0)
             <li class="text-gray-400  px-4 py-2 ">No Options Found</li>
         @endif

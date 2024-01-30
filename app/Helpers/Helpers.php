@@ -1,12 +1,18 @@
 <?php
 
-
 use Carbon\Carbon;
 
 if (!function_exists('todayDate')) {
   function todayDate()
   {
     return Carbon::now()->format('Y-m-d');
+  }
+}
+
+if (!function_exists('formatDateToReadableFormat')) {
+  function formatDateToReadableFormat($date)
+  {
+    return Carbon::parse($date)->format('D, d M');
   }
 }
 
