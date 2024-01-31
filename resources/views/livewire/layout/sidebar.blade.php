@@ -14,12 +14,40 @@ new class extends Component
     {
         switch(auth()->user()->role) {
             case 'customer':
-                // $menus = ['booking', 'history'];
-                $menus = ['dashboard'];
+                $menus = [
+                    // [
+                    //     'name' => 'dashboard',
+                    //     'route' => 'dashboard'
+                    // ],
+                    [
+                        'name' => 'bookings',
+                        'route' => 'customer-bookings'
+                    ],
+                    [
+                        'name' => 'upcoming',
+                        'route' => 'customer-upcoming-bookings'
+                    ],
+                    [
+                        'name' => 'history',
+                        'route' => 'customer-history-bookings'
+                    ]
+                ];
                 break;
             case 'admin':
-                // $menus = ['field', 'package', 'booking'];
-                $menus = ['dashboard', 'fields'];
+                $menus = [
+                    [
+                        'name' => 'fields',
+                        'route' => 'fields'
+                    ],
+                    [
+                        'name' => 'packages',
+                        'route' => 'packages'
+                    ],
+                    [
+                        'name' => 'bookings',
+                        'route' => 'admin-bookings'
+                    ]
+                ];
                 break;
         }
 
@@ -39,8 +67,8 @@ new class extends Component
 
         <ul class="mt-10">
         @foreach($menus as $menu)
-            <x-nav-link class="w-full p-4 pl-8" :href="route($menu)" :active="request()->routeIs($menu)" wire:navigate>
-                {{ __(ucwords($menu)) }}
+            <x-nav-link class="w-full p-4 pl-8" :href="route($menu['route'])" :active="request()->routeIs($menu['route'].'*')" wire:navigate>
+                {{ __(ucwords($menu['name'])) }}
             </x-nav-link>
         @endforeach
         </ul>

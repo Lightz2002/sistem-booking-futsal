@@ -3,33 +3,37 @@
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use Livewire\Attributes\Rule;
+use Livewire\Attributes\Validate;
 use App\Models\Field;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 
 new class extends Component {
 
     use WithFileUploads, WithPagination;
 
-    #[Rule('required|min:3')]
+    #[Validate('required|min:3|unique:fields,name')]
     public string $name = '';
 
-    #[Rule('file|max:1024')]
+    #[Validate('file|max:1024|nullable')]
     public $image;
 
+    #[Url(as: 'q')]
     public $search = '';
 
 
     public function with(): array
     {
         return [
-            'fields' => Field::filter($this->search)->paginate(5)
+            'fields' => Field::filter($this->search)->paginate(20)
         ];
     }
 
 
     public function addField() {
+        $this->validate();
+        
         if (isset($this->image) && !empty($this->image)) {
             $fileName = $this->image->getClientOriginalName();
 
@@ -59,26 +63,22 @@ new class extends Component {
 }; ?>
 
 <div class="h-full  rounded-md mx-auto">
-    <x-alert type="success" name="success-alert"></x-alert>
+    <x-alert name="success-alert"></x-alert>
 
     <div class="flex items-center mb-4">
         <h1 class="font-bold text-2xl">Fields</h1>
         <x-primary-button class="ml-auto"
         x-on:click.prevent="$dispatch('open-modal', 'add-field')"
-        >Add</x-primary-button>
-    </div>
-
-
-    <div class="flex items-center w-1/3 relative mb-4">
-            <input wire:model.live="search" wire:keydown="searchFields" name="search" type="search" placeholder="Search..."
-                class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="stroke-slate-400 w-6 h-6 absolute top-1/2 right-10 translate-y-[-50%]">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
+
+            <span>Add Field</span>
+        </x-primary-button>
     </div>
+
+    <x-search model="search" search="searchFields" />
 
     <div class="flex gap-4 flex-col sm:flex-row mb-2">
         @foreach($fields as $field)
@@ -89,13 +89,8 @@ new class extends Component {
             <img class="object-cover w-full h-48" src="{{ $field->image }}" alt="NIKE AIR">
             <div class="flex items-center justify-between px-4 py-2 bg-gray-900">
                 <h1 class="text-lg font-bold text-white">{{ $field->name }}</h1>
-                {{-- <button class="px-2 py-1 text-xs font-semibold text-gray-900 uppercase transition-colors duration-300 transform bg-white rounded hover:bg-gray-200 focus:bg-gray-400 focus:outline-none">Add to cart</button> --}}
             </div>
 
-            {{-- <div class="px-4 py-2">
-                <h1 class="text-xl font-bold text-gray-800 uppercase dark:text-white">{{ $field->name }}</h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400"></p>
-            </div> --}}
         </div>
         @endforeach
     </div>
@@ -140,10 +135,9 @@ new class extends Component {
                     placeholder="{{ __('Image') }}"
                 />
 
-
-                <progress wire:loading wire:target="image" class="bg-indigo-600 progress w-56"></progress>
-
                 <x-input-error :messages="$errors->get('image')" class="mt-2" />
+
+                <div wire:loading wire:target='image' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
             </div>
 
             <div class="mt-6 flex justify-end">

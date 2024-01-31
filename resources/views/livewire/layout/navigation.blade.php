@@ -2,11 +2,29 @@
 
 use App\Livewire\Actions\Logout;
 use Livewire\Volt\Component;
+use App\Models\Allotment;
+use Livewire\Attributes\On;
 
 new class extends Component
 {
     public array $menus = [];
+    public $onHoldBooking;
 
+    #[On('booking-updated')]
+    public function setOnHoldBooking() {
+        if (auth()->user()->role !== 'customer') {
+            $this->onHoldBooking = 0;
+        } else {
+            $this->onHoldBooking = Allotment::where('user_id', auth()->user()->id)->where('status', 'hold')->get()->count();
+        }
+    }
+
+    public function with(): array 
+    {
+        return [
+            'onHoldBooking' => $this->onHoldBooking
+        ];
+    }
      /**
      * Mount the component.
      */
@@ -14,17 +32,52 @@ new class extends Component
     {
         switch(auth()->user()->role) {
             case 'customer':
-                // $menus = ['booking', 'history'];
-                $menus = ['dashboard'];
+                $menus = [
+                    // [
+                    //     'name' => 'dashboard',
+                    //     'route' => 'dashboard'
+                    // ],
+                    [
+                        'name' => 'bookings',
+                        'route' => 'customer-bookings'
+                    ],
+                    [
+                        'name' => 'upcoming',
+                        'route' => 'customer-upcoming-bookings'
+                    ],
+                    [
+                        'name' => 'history',
+                        'route' => 'customer-history-bookings'
+                    ]
+
+                ];
                 break;
             case 'admin':
-                // $menus = ['field', 'package', 'booking'];
-                $menus = ['dashboard', 'fields'];
+                $menus = [
+                    [
+                        'name' => 'fields',
+                        'route' => 'fields'
+                    ],
+                    [
+                        'name' => 'packages',
+                        'route' => 'packages'
+                    ],
+                    [
+                        'name' => 'bookings',
+                        'route' => 'admin-bookings'
+                    ]
+                ];
                 break;
         }
-
+        
+        $this->setOnHoldBooking();
         $this->menus = $menus;
         $this->name = Auth::user()->name;
+    }
+
+    public function redirectToPayment() {
+
+        $this->redirectRoute('customer-payments');
     }
 
     /**
@@ -48,14 +101,25 @@ new class extends Component
                     <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
 
                     @foreach($menus as $menu)
-                        <a href="{{ route("$menu") }}" wire:navigate>
+                        <a href="{{ route($menu['route']) }}" wire:navigate>
                         </a>
                     @endforeach
 
                 </div>
-
-                
             </div>
+
+            {{-- cart logo --}}
+            @if (auth()->user()->role === 'customer')
+            <div wire:click="redirectToPayment" class="ml-auto p-4 bg-transparent flex items-center hover:cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 me-2 bg-transparent">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                  </svg>
+                
+                <div class="bg-indigo-600 text-white rounded-full p-2">
+                    {{ $onHoldBooking }}
+                </div>
+            </div>
+            @endif
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -103,8 +167,8 @@ new class extends Component
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             @foreach($menus as $menu)
-                <x-responsive-nav-link :href="route($menu)" :active="request()->routeIs($menu)" wire:navigate>
-                    {{ __(ucwords($menu)) }}
+                <x-responsive-nav-link :href="route($menu['route'])" :active="request()->routeIs($menu['route'].'*')" wire:navigate>
+                    {{ __(ucwords($menu['name'])) }}
                 </x-responsive-nav-link>
             @endforeach
         </div>
