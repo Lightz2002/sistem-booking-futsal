@@ -16,7 +16,7 @@ new #[Layout('layouts.guest')] class extends Component
     {
         if (Auth::user()->hasVerifiedEmail()) {
             $this->redirect(
-                session('url.intended', RouteServiceProvider::HOME),
+                session('url.intended', RouteServiceProvider::getHomeRoute()),
                 navigate: true
             );
 

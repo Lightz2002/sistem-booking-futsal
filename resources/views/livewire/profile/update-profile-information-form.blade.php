@@ -11,6 +11,8 @@ new class extends Component
 {
     public string $name = '';
     public string $email = '';
+    public string $phone_no = '';
+    public string $address = '';
 
     /**
      * Mount the component.
@@ -19,6 +21,8 @@ new class extends Component
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->phone_no = Auth::user()->phone_no;
+        $this->address = Auth::user()->address ?? '';
     }
 
     /**
@@ -30,6 +34,8 @@ new class extends Component
 
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
+            'phone_no' => ['required', 'max:20'],
+            'address' => ['nullable'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
         ]);
 
@@ -52,7 +58,7 @@ new class extends Component
         $user = Auth::user();
 
         if ($user->hasVerifiedEmail()) {
-            $path = session('url.intended', RouteServiceProvider::HOME);
+            $path = session('url.intended', RouteServiceProvider::getHomeRoute());
 
             $this->redirect($path);
 
@@ -105,6 +111,18 @@ new class extends Component
                     @endif
                 </div>
             @endif
+        </div>
+
+        <div>
+            <x-input-label for="phone_no" :value="__('Phone No')" />
+            <x-text-input wire:model="phone_no" id="phone_no" name="phone_no" type="text" class="mt-1 block w-full" required  autocomplete="phone_no" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone_no')" />
+        </div>
+
+        <div>
+            <x-input-label for="address" :value="__('Address')" />
+            <x-text-input wire:model="address" id="address" name="address" type="text" class="mt-1 block w-full"   autocomplete="address" />
+            <x-input-error class="mt-2" :messages="$errors->get('address')" />
         </div>
 
         <div class="flex items-center gap-4">
