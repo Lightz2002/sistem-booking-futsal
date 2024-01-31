@@ -26,7 +26,7 @@ new class extends Component {
     public function with(): array
     {
         return [
-            'fields' => Field::filter($this->search)->paginate(1)
+            'fields' => Field::filter($this->search)->paginate(20)
         ];
     }
 

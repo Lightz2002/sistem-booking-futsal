@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use Livewire\Volt\Component;
+use App\Models\Field;
 use App\Models\Package;
 use App\Models\PackageDetail;
 use App\Models\Allotment;
@@ -70,6 +71,7 @@ new class extends Component {
         ];
 
         return [
+            'fieldAutoCompletes' => Field::filter($this->editPackageForm->field)->select('name')->get(),
             'package' => $this->package,
             'packageDetail' => $this->packageDetail,
             'details' => $packageDetails,
@@ -80,7 +82,13 @@ new class extends Component {
     public function editPackage() {
         $this->editPackageForm->validate();
 
-        $this->editPackageForm->update($this->package);
+        $fieldModel = Field::firstWhere('name', $this->editPackageForm->field);
+
+        if (!$fieldModel) {
+            return $this->dispatch('open-alert', name: 'edit-package-alert', type: 'Error', message: 'Field does not exist !');
+        }
+
+        $this->editPackageForm->update($this->package, $fieldModel);
 
         $this->dispatch('close-modal', 'edit-package');
         $this->dispatch('open-alert', name: 'edit-package-alert', type: 'Success', message: 'Package Updated Successfully !');
@@ -89,12 +97,6 @@ new class extends Component {
 
     public function deletePackage() {
         /* validation */
-        // $packageDetails = PackageDetail::where('package_id', $this->package->id)->first();
-        // if ($packageDetails) {
-        //     $this->dispatch('open-alert', name: 'delete-package-alert', type: 'Error', message: 'Delete Package Details First !');
-        //     return;
-        // }
-
         try {
             if ($this->package->status === 'posted') {
                 $this->dispatch('open-alert', name: 'delete-package-alert', type: 'Error', message: 'Package Already Posted !');
@@ -109,7 +111,7 @@ new class extends Component {
                 $this->redirectRoute('packages');
             }
         } catch (Exception $e) {
-            dd($e);
+            $this->dispatch('open-alert', name: 'delete-package-alert', type: 'Error', message: $e->getMessage());
         }
     }
 
@@ -141,7 +143,7 @@ new class extends Component {
         $this->addPackageDetailForm->reset();
         $this->addPackageDetailForm->setPackageId($this->package->id);
 
-        $this->dispatch('open-alert', name: 'add-detail-alert');
+        $this->dispatch('open-alert', name: 'add-detail-alert', type: 'Success', message: 'Package Detail Created Successfully !');
         $this->dispatch('close-modal', 'add-package-detail');
     }
 
@@ -200,6 +202,10 @@ new class extends Component {
             DB::transaction(function() {
                 $today = todayDate();
                 $validEnd = $this->package->valid_end;
+
+                if (count($this->package->package_details) === 0) {
+                    throw new Exception('Create Package Detail First !');
+                }
 
                 $totalValidAllotmentDays = Carbon::parse($today)->diffInDays(Carbon::parse($validEnd));
 
@@ -285,8 +291,9 @@ new class extends Component {
                     <div class="grid grid-cols-2 gap-8 content-start ">
                         <x-detail-desc label="Code" :value="$package->code" />
                         <x-detail-desc label="Name" :value="$package->name" />
-                        <x-detail-desc label="Valid End" :value="$package->valid_end" />
-                        <x-detail-desc label="Status" :value="$package->status" />
+                        <x-detail-desc label="Field" :value="$package->field->name" />
+                        <x-detail-desc label="Valid End" :value="formatToDMY($package->valid_end)" />
+                        <x-detail-desc label="Status" :value="ucwords($package->status)" />
                     </div>
                 </div>
 
@@ -327,7 +334,7 @@ new class extends Component {
         </x-slot>
     </x-tabs>
 
-   <x-forms.package.edit />
+   <x-forms.package.edit :fieldAutoCompletes="$fieldAutoCompletes"/>
    <x-forms.package.delete />
    <x-forms.package.confirm />
 </div>

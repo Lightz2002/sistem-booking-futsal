@@ -43,20 +43,28 @@
                   </svg>'
       ],
       'confirmed' => [
-        'name' => 'confirmed',
+        'name' => 'Confirmed',
         'activeStyle' => '!bg-green-100 !text-green-800',
         'hoverStyle' => 'hover:bg-green-100 hover:text-green-800',
         'icon' => '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2 font-bold">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>'
       ],
+      'upcoming' => [
+        'name' => 'upcoming',
+        'activeStyle' => '!bg-purple-100 !text-purple-800',
+        'hoverStyle' => 'hover:bg-purple-100 hover:text-purple-800',
+        'icon' => '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2 font-bold">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811V8.69ZM12.75 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061a1.125 1.125 0 0 1-1.683-.977V8.69Z" />
+            </svg>'
+      ],
       'history' => [
         'name' => 'history',
         'activeStyle' => '!bg-cyan-100 !text-cyan-800',
         'hoverStyle' => 'hover:bg-cyan-100 hover:text-cyan-800',
         'icon' => '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2 font-bold">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
-        </svg>'
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>'
       ]
     ];
 

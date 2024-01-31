@@ -33,15 +33,11 @@ new class extends Component {
             'date_from' => $this->filterCustomerBookingForm->date_from,
             'date_until' => $this->filterCustomerBookingForm->date_until,
             'day' =>  $this->filterCustomerBookingForm->day,
-            'field' => $this->field->name,
-            'status' => ''
+            'field' => $this->field->name
         ];
 
-        $allotments = Allotment::filter($filters)
-            ->orderBy('allotments.date')
-            ->orderBy('allotments.start_time')
-            ->get();
-          
+        $allotments = Allotment::filter($filters)->get();
+
         $today = Carbon::parse(todayDate());
         $showedBookingDateUntil = Carbon::parse($this->filterCustomerBookingForm->date_until);
 
@@ -190,9 +186,6 @@ new class extends Component {
                         $cardLookup = $statusClassStyle['self-booked-hold'];
                         break;
                       case 'verifying':
-                        $cardLookup = $statusClassStyle['other-booked'];
-                        break;
-                      default:
                         $cardLookup = $statusClassStyle['other-booked'];
                         break;
                     }

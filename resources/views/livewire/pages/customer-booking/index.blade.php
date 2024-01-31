@@ -38,6 +38,7 @@ new class extends Component {
             'date_until' => $this->filterCustomerBookingFieldForm->date_until,
             'day' =>  $this->filterCustomerBookingFieldForm->day,
             'field' => $this->filterCustomerBookingFieldForm->field,
+            'status' => ''
         ];
 
 

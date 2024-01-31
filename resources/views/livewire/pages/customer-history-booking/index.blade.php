@@ -2,57 +2,55 @@
 
 use Carbon\Carbon;
 use Livewire\Volt\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 use App\Models\Field;
 use App\Models\Package;
 use App\Models\Allotment;
 use Livewire\Attributes\Url;
-use App\Livewire\Forms\FilterCustomerBookingForm;
+use App\Livewire\Forms\FilterCustomerHistoryBookingForm;
 
 new class extends Component {
-    public FilterCustomerBookingForm $filterCustomerBookingForm;
+    public FilterCustomerHistoryBookingForm $filterCustomerHistoryBookingForm;
 
-    use WithFileUploads, WithPagination;
 
     #[Url(as: 'q')]
     public $search = '';
-    public $field;
 
-    public function mount (Field $field) {
-        $this->field = $field;
-        $this->filterCustomerBookingForm->setFilter();
-
+    public function mount () {
+        $this->filterCustomerHistoryBookingForm->setFilter();
     }
 
     public function with(): array
     {
         $filters = [
             'search' => $this->search,
-            'date_from' => $this->filterCustomerBookingForm->date_from,
-            'date_until' => $this->filterCustomerBookingForm->date_until,
-            'day' =>  $this->filterCustomerBookingForm->day,
-            'field' => $this->field->name,
-            'status' => ''
+            'date_from' => $this->filterCustomerHistoryBookingForm->date_from,
+            'date_until' => $this->filterCustomerHistoryBookingForm->date_until,
+            'day' =>  $this->filterCustomerHistoryBookingForm->day,
+            'field' => $this->filterCustomerHistoryBookingForm->field,
+            'status' => 'confirmed'
         ];
 
         $allotments = Allotment::filter($filters)
+            ->where('user_id', auth()->user()->id)
             ->orderBy('allotments.date')
             ->orderBy('allotments.start_time')
             ->get();
-          
+
         $today = Carbon::parse(todayDate());
-        $showedBookingDateUntil = Carbon::parse($this->filterCustomerBookingForm->date_until);
+        $showedBookingDateUntil = Carbon::parse($this->filterCustomerHistoryBookingForm->date_until);
+
+        $fieldAutoCompletes = Field::filter($this->filterCustomerHistoryBookingForm->field)->select('name')->get();
 
         return [
-            'field' => $this->field,
+            'fieldAutoCompletes' => $fieldAutoCompletes,
             'allotments' => $allotments,
             'allotmentsBookedByCurrentUser' => $allotments->filter(function($value) {
               return $value['user_id'] === auth()->user()->id && $value['status'] === 'hold';
             }),
             'allotmentsByDate' => $allotments->groupBy('date')->all(),
-            'totalShowedBookingDays' => Carbon::parse($this->filterCustomerBookingForm->date_from)->diffInDays(Carbon::parse($showedBookingDateUntil)),
+            'totalShowedBookingDays' => Carbon::parse($this->filterCustomerHistoryBookingForm->date_from)->diffInDays(Carbon::parse($showedBookingDateUntil)),
         ];
     }
 
@@ -60,53 +58,19 @@ new class extends Component {
         $this->resetPage();
     }
 
-    public function filterBookings() {
-        $this->filterCustomerBookingForm->validate();
+    public function filterHistoryBookings() {
+        $this->filterCustomerHistoryBookingForm->validate();
 
-        $this->dispatch('close-modal', 'filter-customer-booking');
+        $this->dispatch('close-modal', 'filter-customer-history-booking');
     }
 
     public function resetFilter() {
-        $this->filterCustomerBookingForm->setFilter();
+        $this->filterCustomerHistoryBookingForm->setFilter();
     }
 
-    public function handleBooking($allotmentId) {
-      try {
-        $allotment = Allotment::firstWhere('id', $allotmentId);
-
-        if ($allotment->user_id != auth()->user()->id && !is_null($allotment->user_id)) {
-          throw new Exception('This field is booked by other people !');
-          return;
-        } else if ($allotment->user_id == auth()->user()->id && $allotment->status !== 'hold') {
-          throw new Exception('You have booked this field at the selected time !');
-          return;
-        }
-
-        /* is empty booking */
-        if (!$allotment->user_id) {
-          $status = 'hold';
-          $userId =  auth()->user()->id;
-        } else if ($allotment->user_id == auth()->user()->id) {
-          /* cancel booking */
-            $userId = null;
-            $status = 'available';
-        }
-
-        $allotment->update([
-          'status' => $status,
-          'user_id' => $userId,
-        ]);
-
-        $this->dispatch('booking-updated');
-
-      } catch (Exception $e) {
-        $this->dispatch('open-alert', name: 'alert', type: 'Error', message: $e->getMessage());
-      }
-    }
-
-    public function redirectToPayment() {
-      $this->redirectRoute('customer-payments');
-    }
+    // public function redirectToPayment() {
+    //   $this->redirectRoute('customer-payments');
+    // }
 
 }
 //
@@ -117,26 +81,26 @@ new class extends Component {
     <x-alert name="alert"></x-alert>
 
     <div class="mb-6">
-      <img class="object-cover w-full h-56 rounded-md" src="{{ asset($field->image) }}" alt="{{ $field->name }}">
-      <h1 class="text-xl font-bold mt-2">{{ $field->name }}</h1>
+      {{-- <img class="object-cover w-full h-56 rounded-md" src="{{ asset($field->image) }}" alt="{{ $field->name }}"> --}}
+      <h1 class="text-xl font-bold mt-2">History Bookings</h1>
     </div>
 
-    <button @click="$dispatch('open-modal', 'filter-customer-booking')" class="flex items-center bg-white mb-2 shadow-sm py-2 px-4 me-4 border border-slate-500 text-slate-500  rounded-md hover:bg-indigo-800 hover:text-gray-200">
+    <button @click="$dispatch('open-modal', 'filter-customer-history-booking')" class="flex items-center bg-white mb-2 shadow-sm py-2 px-4 me-4 border border-slate-500 text-slate-500  rounded-md hover:bg-indigo-800 hover:text-gray-200">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 me-2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
       </svg>
 
       <span>Filter</span>
-  </button>
+   </button>
 
-    <x-forms.booking.customer.filter-booking/>
+    <x-forms.booking.customer.filter-history-booking :fieldAutoCompletes="$fieldAutoCompletes"/>
 
     {{-- list --}}
     <div id="draggable-zone" class="w-full overflow-x-auto whitespace-nowrap">
       <div id="draggable-content" class="inline-block whitespace-nowrap cursor-grab">
         @for($day = 0; $day <= $totalShowedBookingDays; $day++)
             @php
-                $rowCarbonDate = Carbon::parse($filterCustomerBookingForm->date_from)->addDays($day);
+                $rowCarbonDate = Carbon::parse($filterCustomerHistoryBookingForm->date_from)->addDays($day);
                 $rowDate = $rowCarbonDate->format('d M');
                 $rowDay = $rowCarbonDate->format('l');
                 $allotmentsPerDate = $allotmentsByDate[$rowCarbonDate->format('Y-m-d')] ?? [];
@@ -201,20 +165,13 @@ new class extends Component {
                   }
                 @endphp
     
-                <div wire:click="handleBooking('{{ $allotment->id }}')" class="{{ $cardLookup['bg'] }} rounded-md mb-2 p-4 min-w-40 px-4 transition-all hover:cursor-pointer">
-                  <div class="flex items-center mb-4">
-                    {!! $cardLookup['icon'] !!}
-    
-                    <h5 class="{{ $cardLookup['color'] }} ml-auto">
-                      {{ $rowDate }}
-                    </h5>
-                  </div>
+                <div wire:click="handleBooking('{{ $allotment->id }}')" class="bg-indigo-600 rounded-md mb-2 px-4 py-6 min-w-40 transition-all hover:cursor-pointer">
     
                   <div class="text-center {{ $cardLookup['color'] }}">
-                    <h5 class="mb-2">{{ $formattedStartTime . ' - ' . $formattedEndTime}}</h5>
-                    <h3 class="text-xl font-bold mb-2">{{ formatToRupiah($allotment->price)}}</h3>
-                    <h5 class="{{ $cardLookup['statusColor'] }} text-lg font-bold">{{ 
-                    ucwords($allotment->status === 'verifying' ? 'Booked' : $allotment->status)}}</h5>
+                    <h5 class="{{ $cardLookup['statusColor'] }} text-lg  mb-2">{{ 
+                      ucwords($allotment->field_name)}}</h5>
+                    <h5 class="text-xl font-bold mb-2">{{ $formattedStartTime . ' - ' . $formattedEndTime}}</h5>
+                    <h3 class=" mb-2">{{ formatToRupiah($allotment->price)}}</h3>
                   </div>
                 </div>
                 @endforeach

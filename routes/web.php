@@ -35,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::prefix('/admin-bookings')->group(function () {
             Volt::route('/', 'pages.admin-booking.index')->name('admin-bookings');
+            Volt::route('/{allotment}', 'pages.admin-booking.detail')->name('admin-bookings.detail');
         });
     });
 
@@ -42,6 +43,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('/customer-bookings')->group(function () {
             Volt::route('/', 'pages.customer-booking.index')->name('customer-bookings');
             Volt::route('/{field}', 'pages.customer-booking.field-detail')->name('customer-bookings.field-detail');
+        });
+
+        Route::prefix('/customer-upcoming-bookings')->group(function () {
+            Volt::route('/', 'pages.customer-upcoming-booking.index')->name('customer-upcoming-bookings');
+        });
+
+        Route::prefix('/customer-history-bookings')->group(function () {
+            Volt::route('/', 'pages.customer-history-booking.index')->name('customer-history-bookings');
         });
 
         Route::prefix('/payments')->group(function () {

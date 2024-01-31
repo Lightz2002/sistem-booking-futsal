@@ -72,6 +72,18 @@
           <div wire:loading wire:target='editPackageForm.image' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
       </div>
 
+      <div class="mt-6">
+        <x-input-label for="field" value="{{ __('Field') }}"  />
+
+        <x-select
+            model="editPackageForm.field"
+            :options="$fieldAutoCompletes"
+            :data="['id' => 'field', 'name' => 'field']"
+        />
+
+        <x-input-error :messages="$errors->get('editPackageForm.field')" class="mt-2" />
+    </div>
+
       <div>
           <x-input-error :messages="$errors->get('editPackageForm.id')" class="mt-2" />
       </div>

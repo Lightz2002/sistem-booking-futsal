@@ -8,10 +8,16 @@ use Livewire\Attributes\Validate;
 use App\Models\Field;
 use App\Models\Package;
 use App\Models\Allotment;
+use App\Models\Payment;
 use Livewire\Attributes\Url;
-use App\Livewire\Forms\FilterCustomerBookingForm;
+use App\Livewire\Forms\CustomerPaymentForm;
 
 new class extends Component {
+  use WithFileUploads;
+
+  public CustomerPaymentForm $customerPaymentForm;
+
+
   public function with(): array {
     return [
       'allotments' => Allotment::with(['field'])->where('user_id', auth()->user()->id)
@@ -26,6 +32,7 @@ new class extends Component {
     ]);
 
     $this->dispatch('booking-updated');
+    return $this->redirectRoute('customer-payments');
   }
 
   public function redirectBackToBooking() {
@@ -44,12 +51,37 @@ new class extends Component {
 
   public function payBooking() {
     try { 
-      Allotment::where('user_id', auth()->user()->id)->update([
-      'status' => 'verifying',
-      ]);
+      
+      $this->customerPaymentForm->validate();
+
+      if (isset($this->customerPaymentForm->payment_proof) && !empty($this->customerPaymentForm->payment_proof)) {
+            $fileName = $this->customerPaymentForm->payment_proof->getClientOriginalName();
+
+            $imageName = now()->timestamp . '_' . $fileName;
+            $imagePath = $this->customerPaymentForm->payment_proof->storeAs('img', $imageName, 'public');
+
+            $this->customerPaymentForm->payment_proof = 'storage/' . $imagePath;
+        } else if (empty($this->customerPaymentForm->payment_proof)) {
+          throw new Exception('If you have uploaded payment proof, Wait a while before submitting the form !');
+        }
+
+        $allotmentsForPay = Allotment::where('user_id', auth()->user()->id)
+        ->whereNull('payment_id')
+        ->where('status', 'hold');
+
+
+        $payment = Payment::create([
+            'payment_proof' => $this->customerPaymentForm->payment_proof ?? '',
+            'total_payment' => $allotmentsForPay->get()->sum('price')
+        ]);
+
+        $allotmentsForPay->update([
+          'status' => 'verifying',
+          'payment_id' => $payment->id
+        ]);
 
       $this->dispatch('open-alert', name: 'payment-alert', message: 'Booking paid successfully and will be checked !');
-      $this->redirectRoute('customer-bookings');
+      $this->redirectRoute('customer-upcoming-bookings');
     } catch (Exception $e) {
         $this->dispatch('open-alert', name: 'payment-alert', type: 'Error', message: $e->getMessage());
     }
@@ -64,7 +96,7 @@ new class extends Component {
   <div class="w-full md:px-8  md:max-w-1/3 mx-auto">
     <div class="rounded  pt-6 pb-8 mb-4">
       <!-- Step Indicator -->
-      <div class="flex items-center justify-center mb-6 step-indicator">
+      <div  wire:ignore class="flex items-center justify-center mb-6 step-indicator">
         <div class="step-1 w-6 h-6 rounded-full flex items-center justify-center bg-indigo-600 text-white step-1-indicator">1</div>
         <div class="step-1 w-1/3 h-1 bg-indigo-600"></div>
         <div class="step-2 w-1/3 h-1 bg-gray-300"></div>
@@ -72,7 +104,7 @@ new class extends Component {
       </div>
   
       <!-- Step 1: Booking List -->
-      <div id="step-1" class="mb-4">
+      <div wire:ignore id="step-1" class="mb-4">
         <button wire:click="redirectBackToBooking" class="my-4 flex items-center border border-indigo-600 text-indigo-600 rounded-md px-4 py-2 ">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 me-2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
@@ -123,7 +155,7 @@ new class extends Component {
       </div>
 
       <!-- Step 2: Payment -->
-      <div id="step-2" class="hidden mb-4">
+      <div  wire:ignore id="step-2" class="hidden mb-4">
         <button class="my-4 flex items-center prev-btn border border-indigo-600 text-indigo-600 rounded-md px-4 py-2 ">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 me-2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
@@ -132,35 +164,46 @@ new class extends Component {
           <span>Back</span>
         </button>
 
-          <div class="text-center">
-            <h2 class="text-3xl font-bold mb-2 ">Payment</h2>
-            <h5 class="text-gray-500 mb-2">Double check the payment to avoid scam</h5>
+        <div class="text-center">
+          <h2 class="text-3xl font-bold mb-2 ">Payment</h2>
+          <h5 class="text-gray-500 mb-2">Double check the payment to avoid scam</h5>
 
-            <img src="https://perbankansyariah.umsida.ac.id/wp-content/uploads/2022/05/QRIS-MASJID-AL-HIKMAH.jpeg" alt="" class="w-52 h-52 mx-auto object-cover">
-          </div>
+         
+        </div>
 
-          <div class="mt-6">
-            <x-input-label for="payment_bank_name" value="{{ __('Field') }}"  />
+        <div class="mt-6 mx-auto flex content-center items-center">
+          <img src="https://perbankansyariah.umsida.ac.id/wp-content/uploads/2022/05/QRIS-MASJID-AL-HIKMAH.jpeg" alt="" class="w-52 h-52 mx-auto object-cover">
+
+          <div>
+            <x-input-label for="payment_proof" value="{{ __('Payment Proof') }}"  />
   
-            <x-select
-                model="filterCustomerBookingFieldForm.payment_bank_name"
-                :options="$fieldAutoCompletes"
-                :data="['id' => 'payment_bank_name', 'name' => 'payment_bank_name']"
+            <x-text-input
+                model="customerPaymentForm.payment_proof"
+                id="payment_proof"
+                name="payment_proof"
+                type="file"
+                accept="image/*"
+                class="my-1 block w-3/4"
+                placeholder="{{ __('Payment Proof') }}"
             />
   
-            <x-input-error :messages="$errors->get('filterCustomerBookingFieldForm.payment_bank_name')" class="mt-2" />
+            <x-input-error :messages="$errors->get('ustomerPaymentForm.payment_proof')" class="mt-2" />
+  
+            <div wire:loading wire:target='payment_proof' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
+          </div>
         </div>
+  
       </div>
 
     </div>
   </div>
 
   @if (count($allotments) > 0)
-  <div class="next-btn bg-white p-4 sticky bottom-0 ">
+  <div  wire:ignore class="next-btn bg-white p-4 sticky bottom-0 ">
     <button class="w-full py-4 text-center bg-indigo-600 rounded-md  text-white hover:-translate-y-2 transition-all">Confirm Booking</button>
   </div>
   
-  <div wire:click="payBooking" class="hidden payment-btn bg-white p-4 sticky bottom-0 ">
+  <div wire:ignore wire:click="payBooking" class="hidden payment-btn bg-white p-4 sticky bottom-0 ">
     <button class="w-full py-4 text-center bg-indigo-600 rounded-md  text-white hover:-translate-y-2 transition-all">I Have Transferred</button>
   </div>
   @endif
@@ -201,6 +244,9 @@ new class extends Component {
         if (currentStep > 1) {
           currentStep--;
           showStep(currentStep);
+
+          $('.payment-btn').addClass('hidden');
+          $('.next-btn').removeClass('hidden');
         }
       });
     });

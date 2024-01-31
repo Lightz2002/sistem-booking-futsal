@@ -16,6 +16,13 @@ if (!function_exists('formatDateToReadableFormat')) {
   }
 }
 
+if (!function_exists('formatToDMY')) {
+  function formatToDMY($date)
+  {
+    return Carbon::parse($date)->format('d F Y');
+  }
+}
+
 if (!function_exists('formatToRupiah')) {
   function formatToRupiah($number)
   {
@@ -29,7 +36,7 @@ if (!function_exists('addOneDayIfPastMidnight')) {
     $dateTime = Carbon::parse($time);
 
     // Check if the time is between midnight and 5 AM
-    if ($dateTime->hour >= 0 && $dateTime->hour < 5) {
+    if ($dateTime->hour >= 0 && $dateTime->hour < 6) {
       // Add one day
       $dateTime->addDay();
     }

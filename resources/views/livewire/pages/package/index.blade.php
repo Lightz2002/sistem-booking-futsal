@@ -7,34 +7,22 @@ use Livewire\Attributes\Validate;
 use App\Models\Field;
 use App\Models\Package;
 use Livewire\Attributes\Url;
+use App\Livewire\Forms\AddPackageForm;
 
 new class extends Component {
 
     use WithFileUploads, WithPagination;
 
+    public AddPackageForm $addPackageForm;
+
     public function with(): array
     {
         return [
-            'fields' => Field::filter($this->field)->select('name')->get(),
+            'fields' => Field::filter($this->addPackageForm->field)->select('name')->get(),
             'packages' => Package::filter($this->search, $this->status)->get(),
             'status' => $this->status,
         ];
     }
-
-    #[Validate('required')]
-    public string $code = '';
-
-    #[Validate('required')]
-    public string $name = '';
-
-    #[Validate('required|date')]
-    public string $valid_end = '';
-
-    #[Validate('required|exists:fields,name')]
-    public string $field = '';
-
-    #[Validate('file|max:1024|nullable')]
-    public $image;
 
     #[Url(as: 'q')]
     public $search = '';
@@ -47,35 +35,19 @@ new class extends Component {
     }
 
     public function addPackage() {
-        $this->validate(); 
+        $this->addPackageForm->validate(); 
 
-
-        $fieldModel = Field::firstWhere('name', $this->field);
+        $fieldModel = Field::firstWhere('name', $this->addPackageForm->field);
 
         if (!$fieldModel) {
             return $this->dispatch('open-alert', name: 'success-alert', type: 'error', message: 'Field does not exist !');
         }
 
-        if (isset($this->image) && !empty($this->image)) {
-            $fileName = $this->image->getClientOriginalName();
-
-            $imageName = now()->timestamp . '_' . $fileName;
-            $imagePath = $this->image->storeAs('img', $imageName, 'public');
-
-            $this->image = 'storage/' . $imagePath;
-        }
-
-        Package::create([
-            'name' => $this->name,
-            'code' => $this->code,
-            'valid_end' => $this->valid_end,
-            'field_id' => $fieldModel->id,
-            'image' => $this->image ?? '',
-        ]);
+        $this->addPackageForm->store($fieldModel);
 
         $this->dispatch('close-modal', 'add-package');
         $this->dispatch('open-alert', name: 'success-alert', type: 'Success', message: 'Package Added Successfully');
-        $this->reset();
+        $this->addPackageForm->reset();
     }
 
     public function redirectToDetail($id) {
@@ -125,35 +97,35 @@ new class extends Component {
                 <x-input-label for="code" value="{{ __('Code') }}"  />
 
                 <x-text-input
-                    model="code"
+                    model="addPackageForm.code"
                     id="code"
                     name="code"
                     class="mt-1 block w-3/4"
                     placeholder="{{ __('Code') }}"
                 />
 
-                <x-input-error :messages="$errors->get('code')" class="mt-2" />
+                <x-input-error :messages="$errors->get('addPackageForm.code')" class="mt-2" />
             </div>
 
             <div class="mt-6">
                 <x-input-label for="name" value="{{ __('Name') }}"  />
 
                 <x-text-input
-                    model="name"
+                    model="addPackageForm.name"
                     id="name"
                     name="name"
                     class="mt-1 block w-3/4"
                     placeholder="{{ __('Name') }}"
                 />
 
-                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                <x-input-error :messages="$errors->get('addPackageForm.name')" class="mt-2" />
             </div>
 
             <div class="mt-6">
                 <x-input-label for="valid_end" value="{{ __('Valid End') }}"  />
 
                 <x-text-input
-                    model="valid_end"
+                    model="addPackageForm.valid_end"
                     type="date"
                     id="valid_end"
                     name="valid_end"
@@ -161,26 +133,26 @@ new class extends Component {
                     placeholder="{{ __('Valid End') }}"
                 />
 
-                <x-input-error :messages="$errors->get('valid_end')" class="mt-2" />
+                <x-input-error :messages="$errors->get('addPackageForm.valid_end')" class="mt-2" />
             </div>
 
             <div class="mt-6">
                 <x-input-label for="field" value="{{ __('Field') }}"  />
 
                 <x-select
-                    model="field"
+                    model="addPackageForm.field"
                     :options="$fields"
                     :data="['id' => 'selectField2', 'name' => 'field']"
                 />
 
-                <x-input-error :messages="$errors->get('field')" class="mt-2" />
+                <x-input-error :messages="$errors->get('addPackageForm.field')" class="mt-2" />
             </div>
 
             <div class="mt-6">
                 <x-input-label for="image" value="{{ __('Image') }}"  />
 
                 <x-text-input
-                    wire:model="image"
+                    wire:model="addPackageForm.image"
                     id="image"
                     name="image"
                     type="file"
@@ -189,7 +161,7 @@ new class extends Component {
                     placeholder="{{ __('Image') }}"
                 />
 
-                <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                <x-input-error :messages="$errors->get('addPackageForm.image')" class="mt-2" />
 
                 <div wire:loading wire:target='image' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
             </div>
@@ -209,7 +181,7 @@ new class extends Component {
     {{-- list --}}
     <div class="flex gap-4 flex-col sm:flex-row mb-2">
         @foreach($packages as $package)
-        <div class="w-full sm:w-56 overflow-hidden bg-white rounded-lg  hover:cursor-pointer hover:transition-all transition-transform transform hover:scale-105 shadow-lg dark:bg-gray-800"
+        <div class="w-full pb-2 sm:w-56 overflow-hidden bg-white rounded-lg  hover:cursor-pointer hover:transition-all transition-transform transform hover:scale-105 shadow-lg dark:bg-gray-800"
         wire:key="{{ $package->id }}"
         wire:click="redirectToDetail({{ $package->id }})"
         >
@@ -217,6 +189,8 @@ new class extends Component {
             <div class="flex items-center justify-between px-4 py-2 bg-gray-900">
                 <h1 class="text-lg font-bold text-white">{{ $package->name }}</h1>
             </div>
+
+            <h3 class="px-4 text-md font-bold text-gray-400">{{ ucwords($package->field->name) }}</h3>
 
         </div>
         @endforeach

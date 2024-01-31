@@ -24,6 +24,14 @@ class UserSeeder extends Seeder
                 'phone_no' => '08129922772',
                 'remember_token' => Str::random(10),
                 'role' => 'admin'
+            ],
+            [
+                'name' => 'customer1',
+                'password' => Hash::make('123'),
+                'email' => 'customer1@gmail.com',
+                'phone_no' => '08129922772',
+                'remember_token' => Str::random(10),
+                'role' => 'customer'
             ]
         ]);
         //

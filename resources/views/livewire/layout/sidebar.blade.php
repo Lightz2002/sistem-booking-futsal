@@ -15,13 +15,21 @@ new class extends Component
         switch(auth()->user()->role) {
             case 'customer':
                 $menus = [
-                    [
-                        'name' => 'dashboard',
-                        'route' => 'dashboard'
-                    ],
+                    // [
+                    //     'name' => 'dashboard',
+                    //     'route' => 'dashboard'
+                    // ],
                     [
                         'name' => 'bookings',
                         'route' => 'customer-bookings'
+                    ],
+                    [
+                        'name' => 'upcoming',
+                        'route' => 'customer-upcoming-bookings'
+                    ],
+                    [
+                        'name' => 'history',
+                        'route' => 'customer-history-bookings'
                     ]
                 ];
                 break;
