@@ -74,14 +74,10 @@ new class extends Component {
       try {
         $allotment = Allotment::firstWhere('id', $allotmentId);
 
-        if ($allotment->status === 'rejected') {
-          return;
-          // allow re-booking
-        }
-        else if ($allotment->user_id != auth()->user()->id && !is_null($allotment->user_id)) {
+        if ($allotment->user_id != auth()->user()->id && !is_null($allotment->user_id)) {
           throw new Exception('This field is booked by other people !');
           return;
-        } else if ($allotment->user_id == auth()->user()->id && $allotment->status !== 'hold') {
+        } else if ($allotment->user_id == auth()->user()->id && !in_array($allotment->status, ['hold', 'rejected'])) {
           throw new Exception("You have booked this field at the selected time !");
           return;
         }
