@@ -54,6 +54,8 @@ new class extends Component {
   <h1 class="mb-4 font-bold text-2xl">View Booking Details</h1>
 
   <x-tabs :tabs="['Main']">
+
+    @if ($allotment->status === 'verifying')
     <x-slot name="dropdown">
       <x-dropdown class="ml-auto" >
           <x-slot name="trigger">
@@ -76,7 +78,8 @@ new class extends Component {
               </x-dropdown-button>
           </x-slot>
       </x-dropdown>
-  </x-slot>
+    </x-slot>
+    @endif
 
     <x-slot name="content">
       <div class="bg-white p-8 rounded-md">

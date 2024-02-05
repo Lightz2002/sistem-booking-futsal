@@ -23,6 +23,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('dashboard');
 
     Route::middleware(['isadmin'])->group(function () {
+        Route::prefix('customers')->group(function () {
+            Volt::route('/', 'pages.customer.index')->name('customers');
+            Volt::route('/{customer}', 'pages.customer.detail')->name('customers.detail');
+        });
+
         Route::prefix('fields')->group(function () {
             Volt::route('/', 'pages.field.index')->name('fields');
             Volt::route('/{field}', 'pages.field.detail')->name('fields.detail');

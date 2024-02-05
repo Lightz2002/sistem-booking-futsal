@@ -33,10 +33,6 @@ new class extends Component
         switch(auth()->user()->role) {
             case 'customer':
                 $menus = [
-                    // [
-                    //     'name' => 'dashboard',
-                    //     'route' => 'dashboard'
-                    // ],
                     [
                         'name' => 'bookings',
                         'route' => 'customer-bookings'
@@ -54,6 +50,10 @@ new class extends Component
                 break;
             case 'admin':
                 $menus = [
+                    [
+                        'name' => 'customers',
+                        'route' => 'customers'
+                    ],
                     [
                         'name' => 'fields',
                         'route' => 'fields'

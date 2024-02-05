@@ -54,4 +54,11 @@ class User extends Authenticatable
             get: fn (string $value) => ucwords($value),
         );
     }
+
+    public function scopeFilter($query, $search = '')
+    {
+        return $query->where('phone_no', 'like', '%' . $search . '%')
+            ->orWhere('name', 'like', '%' . $search . '%')
+            ->orWhere('email', 'like', '%' . $search . '%');
+    }
 }
