@@ -106,15 +106,12 @@ new class extends Component {
                 'key' => 'user',
                 'label' => 'User',
             ],
-        ];
-
-        if ($this->status === 'verifying') {
-            $tableColumns[] = [
+            [
                 'key' => 'action',
                 'label' => 'Action',
                 'component' => 'columns.admin-booking.action-upcoming'
-            ];
-        }
+            ]
+        ];
 
         return [
             'fieldAutoCompletes' => $fieldAutoCompletes,

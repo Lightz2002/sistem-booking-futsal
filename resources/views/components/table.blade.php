@@ -6,8 +6,8 @@
 ]
 )
 
-<div class="mb-4  overflow-hidden rounded-lg shadow-md">
-  <table class="table-auto w-full  text-left  border-slate-200 mb-2">
+<div class="mb-4  overflow-x-auto md:overflow-hidden rounded-lg shadow-md">
+  <table class="table-auto min-w-full  text-left  border-slate-200 mb-2">
     <thead>
         <tr>
             <th

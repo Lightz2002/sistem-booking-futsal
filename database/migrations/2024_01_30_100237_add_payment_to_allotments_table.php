@@ -12,10 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('allotments', function (Blueprint $table) {
-            //
-            $table->foreignIdFor(Payment::class)->nullable()->default(null)->constrained();
-        });
+        if (!Schema::hasColumn('allotments', 'payment_id')) {
+            Schema::table('allotments', function (Blueprint $table) {
+                //
+                $table->foreignIdFor(Payment::class)->nullable()->default(null)->constrained();
+            });
+        }
     }
 
     /**
@@ -25,6 +27,8 @@ return new class extends Migration
     {
         Schema::table('allotments', function (Blueprint $table) {
             //
+            $table->dropColumn('payment_id');
+            $table->dropConstrainedForeignIdFor(Payment::class);
         });
     }
 };

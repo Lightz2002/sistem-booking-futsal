@@ -48,7 +48,7 @@ class RouteServiceProvider extends ServiceProvider
                 case 'admin':
                     return '/fields';
                 case 'customer':
-                    return '/dashboard';
+                    return '/customer-bookings';
                 default:
                     return $defaultRoute;
             }

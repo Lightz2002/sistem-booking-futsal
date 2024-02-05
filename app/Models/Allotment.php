@@ -42,6 +42,11 @@ class Allotment extends Model
         return  $this->belongsTo(Payment::class);
     }
 
+    public function user(): BelongsTo
+    {
+        return  $this->belongsTo(User::class);
+    }
+
     private $defaultFilters = [
         'search' => '',
         'date_from' => '',
@@ -65,7 +70,7 @@ class Allotment extends Model
         return $query->join('packages as p', 'package_id', '=', 'p.id')
             ->join('fields as f', 'allotments.field_id', '=', 'f.id')
             ->leftJoin('users as u', 'u.id', '=', 'allotments.user_id')
-            ->select(DB::raw('allotments.*, u.name user, p.image package_image, f.name field_name, f.image field_image'))
+            ->select(DB::raw('allotments.*, u.name user, u.phone_no user_phone_no, p.image package_image, f.name field_name, f.image field_image'))
             ->where(function ($query) use ($filters) {
                 if ($filters['date_from'] && $filters['date_until']) {
                     $query->whereRaw('DATE_FORMAT(allotments.date, "%Y-%m-%d") >= ? and DATE_FORMAT(allotments.date, "%Y-%m-%d") <= ?', [$filters['date_from'], $filters['date_until']]);

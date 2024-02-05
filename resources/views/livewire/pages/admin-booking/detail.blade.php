@@ -2,12 +2,8 @@
 
 use Carbon\Carbon;
 use Livewire\Volt\Component;
-use App\Models\Package;
-use App\Models\PackageDetail;
 use App\Models\Allotment;
-use App\Livewire\Forms\EditPackageForm;
-use App\Livewire\Forms\addPackageDetailForm;
-use App\Livewire\Forms\EditPackageDetailForm;
+use App\Livewire\Forms\RejectBookingForm;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\On;
@@ -17,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 new class extends Component {
   public Allotment $allotment;
+  public RejectBookingForm $rejectBookingForm;
 
   public function mount(Allotment $allotment) {
         $this->allotment = $allotment;
@@ -44,6 +41,30 @@ new class extends Component {
         $this->dispatch('open-alert', name: 'booking-payment-alert', type: 'Error', message: $e->getMessage());
       }
   }
+
+  public function rejectBookingPayment() {
+    try {
+      DB::transaction(function () {
+        $this->rejectBookingForm->validate();
+        
+        $this->allotment->update([
+            'status' => 'rejected'
+        ]);
+
+
+        $this->allotment->payment->update([
+            'reject_reason' => $this->rejectBookingForm->reject_reason
+        ]);
+
+        $this->dispatch('close-modal', 'reject-booking-payment');
+        $this->dispatch('open-alert', name: 'booking-payment-alert', type: 'Success', message: 'Payment Rejected Successfully');
+
+        $this->redirectRoute('admin-bookings');
+      });
+    } catch (Exception $e) {
+        $this->dispatch('open-alert', name: 'booking-payment-alert', type: 'Error', message: $e->getMessage());
+      }
+  }
 }
 
 ?>
@@ -54,6 +75,8 @@ new class extends Component {
   <h1 class="mb-4 font-bold text-2xl">View Booking Details</h1>
 
   <x-tabs :tabs="['Main']">
+
+    @if ($allotment->status === 'verifying')
     <x-slot name="dropdown">
       <x-dropdown class="ml-auto" >
           <x-slot name="trigger">
@@ -74,9 +97,15 @@ new class extends Component {
               >
                   {{ __('Confirm') }}
               </x-dropdown-button>
+              <x-dropdown-button
+              x-on:click.prevent="$dispatch('open-modal', 'reject-booking-payment')"
+              >
+                  {{ __('Reject') }}
+              </x-dropdown-button>
           </x-slot>
       </x-dropdown>
-  </x-slot>
+    </x-slot>
+    @endif
 
     <x-slot name="content">
       <div class="bg-white p-8 rounded-md">
@@ -92,6 +121,8 @@ new class extends Component {
   
               <div class="grid grid-cols-2 gap-8 content-start ">
                   <x-detail-desc label="Payment Date" :value="$allotment->payment->created_at" />
+                  <x-detail-desc label="User" :value="$allotment->user->name" />
+                  <x-detail-desc label="Phone No" :value="$allotment->user->phone_no" />
                   <x-detail-desc label="Booking Date" :value="$allotment->date" />
                   <x-detail-desc label="Start Time" :value="$allotment->start_time" />
                   <x-detail-desc label="End Time" :value="$allotment->end_time" />
@@ -103,4 +134,5 @@ new class extends Component {
   </x-tabs>
 
   <x-forms.booking.admin.confirm />
+  <x-forms.booking.admin.reject />
 </div>

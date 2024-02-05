@@ -151,6 +151,11 @@ new class extends Component {
 
             </div>
           @endforeach
+
+          <div class="bg-white p-4 rounded-md flex items-baseline justify-end">
+            <h3 class="text-black text-lg md:text-xl me-4">Total</h3>
+            <h3 class="text-black text-xl md:text-2xl font-bold mb-2">{{  formatToRupiah($allotments->sum('price')) }}</h3>
+          </div>
         </div>
       </div>
 
@@ -167,16 +172,20 @@ new class extends Component {
         <div class="text-center">
           <h2 class="text-3xl font-bold mb-2 ">Payment</h2>
           <h5 class="text-gray-500 mb-2">Double check the payment to avoid scam</h5>
-
-         
         </div>
 
-        <div class="mt-6 mx-auto flex content-center items-center">
-          <img src="https://perbankansyariah.umsida.ac.id/wp-content/uploads/2022/05/QRIS-MASJID-AL-HIKMAH.jpeg" alt="" class="w-52 h-52 mx-auto object-cover">
+        <div class="mt-6 mx-auto flex content-center items-center gap-2">
+          <div class="w-1/2">
+            <img src="https://perbankansyariah.umsida.ac.id/wp-content/uploads/2022/05/QRIS-MASJID-AL-HIKMAH.jpeg" alt="" class="w-52 h-52 mx-auto object-cover">
+            
+            <div class="bg-white p-4 my-4 rounded-md flex items-baseline justify-end">
+              <h3 class="text-black text-lg md:text-xl me-4">Total</h3>
+              <h3 class="text-black text-xl md:text-2xl font-bold mb-2">{{  formatToRupiah($allotments->sum('price')) }}</h3>
+            </div>
+          </div>
 
           <div>
             <x-input-label for="payment_proof" value="{{ __('Payment Proof') }}"  />
-  
             <x-text-input
                 model="customerPaymentForm.payment_proof"
                 id="payment_proof"
@@ -187,12 +196,11 @@ new class extends Component {
                 placeholder="{{ __('Payment Proof') }}"
             />
   
-            <x-input-error :messages="$errors->get('ustomerPaymentForm.payment_proof')" class="mt-2" />
+            <x-input-error :messages="$errors->get('customerPaymentForm.payment_proof')" class="mt-2" />
   
             <div wire:loading wire:target='payment_proof' class="bg-indigo-600 text-white mt-2 animate-pulse w-3/4 px-4 py-1 rounded-full max-h-6  text-sm">Uploading...</div>
           </div>
         </div>
-  
       </div>
 
     </div>
