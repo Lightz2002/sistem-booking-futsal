@@ -92,6 +92,8 @@ new class extends Component {
   
               <div class="grid grid-cols-2 gap-8 content-start ">
                   <x-detail-desc label="Payment Date" :value="$allotment->payment->created_at" />
+                  <x-detail-desc label="User" :value="$allotment->user->name" />
+                  <x-detail-desc label="Phone No" :value="$allotment->user->phone_no" />
                   <x-detail-desc label="Booking Date" :value="$allotment->date" />
                   <x-detail-desc label="Start Time" :value="$allotment->start_time" />
                   <x-detail-desc label="End Time" :value="$allotment->end_time" />
