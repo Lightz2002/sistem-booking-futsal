@@ -58,6 +58,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Volt::route('/', 'pages.customer-history-booking.index')->name('customer-history-bookings');
         });
 
+        Route::prefix('/customer-rejected-bookings')->group(function () {
+            Volt::route('/', 'pages.customer-rejected-booking.index')->name('customer-rejected-bookings');
+            Volt::route('/{booking}', 'pages.customer-rejected-booking.detail')->name('customer-rejected-bookings.detail');
+        });
+
         Route::prefix('/payments')->group(function () {
             Volt::route('/', 'pages.customer-payment.index')->name('customer-payments');
         });

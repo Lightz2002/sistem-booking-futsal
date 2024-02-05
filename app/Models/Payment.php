@@ -19,5 +19,6 @@ class Payment extends Model
         'id',
         'payment_proof',
         'total_payment',
+        'reject_reason'
     ];
 }

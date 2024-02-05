@@ -27,6 +27,10 @@ new class extends Component
                     [
                         'name' => 'history',
                         'route' => 'customer-history-bookings'
+                    ],
+                    [
+                        'name' => 'rejected',
+                        'route' => 'customer-rejected-bookings'
                     ]
                 ];
                 break;

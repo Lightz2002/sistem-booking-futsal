@@ -2,57 +2,55 @@
 
 use Carbon\Carbon;
 use Livewire\Volt\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 use App\Models\Field;
 use App\Models\Package;
 use App\Models\Allotment;
 use Livewire\Attributes\Url;
-use App\Livewire\Forms\FilterCustomerBookingForm;
+use App\Livewire\Forms\FilterCustomerRejectedBookingForm;
 
 new class extends Component {
-    public FilterCustomerBookingForm $filterCustomerBookingForm;
+    public FilterCustomerRejectedBookingForm $filterCustomerRejectedBookingForm;
 
-    use WithFileUploads, WithPagination;
 
     #[Url(as: 'q')]
     public $search = '';
-    public $field;
 
-    public function mount (Field $field) {
-        $this->field = $field;
-        $this->filterCustomerBookingForm->setFilter();
-
+    public function mount () {
+        $this->filterCustomerRejectedBookingForm->setFilter();
     }
 
     public function with(): array
     {
         $filters = [
             'search' => $this->search,
-            'date_from' => $this->filterCustomerBookingForm->date_from,
-            'date_until' => $this->filterCustomerBookingForm->date_until,
-            'day' =>  $this->filterCustomerBookingForm->day,
-            'field' => $this->field->name,
-            'status' => ''
+            'date_from' => $this->filterCustomerRejectedBookingForm->date_from,
+            'date_until' => $this->filterCustomerRejectedBookingForm->date_until,
+            'day' =>  $this->filterCustomerRejectedBookingForm->day,
+            'field' => $this->filterCustomerRejectedBookingForm->field,
+            'status' => 'rejected'
         ];
 
         $allotments = Allotment::filter($filters)
+            ->where('user_id', auth()->user()->id)
             ->orderBy('allotments.date')
             ->orderBy('allotments.start_time')
             ->get();
-          
+
         $today = Carbon::parse(todayDate());
-        $showedBookingDateUntil = Carbon::parse($this->filterCustomerBookingForm->date_until);
+        $showedBookingDateUntil = Carbon::parse($this->filterCustomerRejectedBookingForm->date_until);
+
+        $fieldAutoCompletes = Field::filter($this->filterCustomerRejectedBookingForm->field)->select('name')->get();
 
         return [
-            'field' => $this->field,
+            'fieldAutoCompletes' => $fieldAutoCompletes,
             'allotments' => $allotments,
             'allotmentsBookedByCurrentUser' => $allotments->filter(function($value) {
               return $value['user_id'] === auth()->user()->id && $value['status'] === 'hold';
             }),
             'allotmentsByDate' => $allotments->groupBy('date')->all(),
-            'totalShowedBookingDays' => Carbon::parse($this->filterCustomerBookingForm->date_from)->diffInDays(Carbon::parse($showedBookingDateUntil)),
+            'totalShowedBookingDays' => Carbon::parse($this->filterCustomerRejectedBookingForm->date_from)->diffInDays(Carbon::parse($showedBookingDateUntil)),
         ];
     }
 
@@ -60,56 +58,18 @@ new class extends Component {
         $this->resetPage();
     }
 
-    public function filterBookings() {
-        $this->filterCustomerBookingForm->validate();
+    public function filterRejectedBookings() {
+        $this->filterCustomerRejectedBookingForm->validate();
 
-        $this->dispatch('close-modal', 'filter-customer-booking');
+        $this->dispatch('close-modal', 'filter-customer-rejected-booking');
     }
 
     public function resetFilter() {
-        $this->filterCustomerBookingForm->setFilter();
+        $this->filterCustomerRejectedBookingForm->setFilter();
     }
 
-    public function handleBooking($allotmentId) {
-      try {
-        $allotment = Allotment::firstWhere('id', $allotmentId);
-
-        if ($allotment->status === 'rejected') {
-          return;
-          // allow re-booking
-        }
-        else if ($allotment->user_id != auth()->user()->id && !is_null($allotment->user_id)) {
-          throw new Exception('This field is booked by other people !');
-          return;
-        } else if ($allotment->user_id == auth()->user()->id && $allotment->status !== 'hold') {
-          throw new Exception("You have booked this field at the selected time !");
-          return;
-        }
-
-        /* is empty booking */
-        if (!$allotment->user_id) {
-          $status = 'hold';
-          $userId =  auth()->user()->id;
-        } else if ($allotment->user_id == auth()->user()->id) {
-          /* cancel booking */
-            $userId = null;
-            $status = 'available';
-        }
-
-        $allotment->update([
-          'status' => $status,
-          'user_id' => $userId,
-        ]);
-
-        $this->dispatch('booking-updated');
-
-      } catch (Exception $e) {
-        $this->dispatch('open-alert', name: 'alert', type: 'Error', message: $e->getMessage());
-      }
-    }
-
-    public function redirectToPayment() {
-      $this->redirectRoute('customer-payments');
+    public function redirectToRejectDetail($bookingId) {
+      $this->redirectRoute('customer-rejected-bookings.detail', ['booking' => $bookingId]);
     }
 
 }
@@ -121,26 +81,26 @@ new class extends Component {
     <x-alert name="alert"></x-alert>
 
     <div class="mb-6">
-      <img class="object-cover w-full h-56 rounded-md" src="{{ asset($field->image) }}" alt="{{ $field->name }}">
-      <h1 class="text-xl font-bold mt-2">{{ $field->name }}</h1>
+      {{-- <img class="object-cover w-full h-56 rounded-md" src="{{ asset($field->image) }}" alt="{{ $field->name }}"> --}}
+      <h1 class="text-xl font-bold mt-2">Rejected Bookings</h1>
     </div>
 
-    <button @click="$dispatch('open-modal', 'filter-customer-booking')" class="flex items-center bg-white mb-2 shadow-sm py-2 px-4 me-4 border border-slate-500 text-slate-500  rounded-md hover:bg-indigo-800 hover:text-gray-200">
+    <button @click="$dispatch('open-modal', 'filter-customer-rejected-booking')" class="flex items-center bg-white mb-2 shadow-sm py-2 px-4 me-4 border border-slate-500 text-slate-500  rounded-md hover:bg-indigo-800 hover:text-gray-200">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 me-2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
       </svg>
 
       <span>Filter</span>
-  </button>
+   </button>
 
-    <x-forms.booking.customer.filter-booking/>
+    <x-forms.booking.customer.filter-rejected-booking :fieldAutoCompletes="$fieldAutoCompletes"/>
 
     {{-- list --}}
     <div id="draggable-zone" class="w-full overflow-x-auto whitespace-nowrap">
       <div id="draggable-content" class="inline-block whitespace-nowrap cursor-grab">
         @for($day = 0; $day <= $totalShowedBookingDays; $day++)
             @php
-                $rowCarbonDate = Carbon::parse($filterCustomerBookingForm->date_from)->addDays($day);
+                $rowCarbonDate = Carbon::parse($filterCustomerRejectedBookingForm->date_from)->addDays($day);
                 $rowDate = $rowCarbonDate->format('d M');
                 $rowDay = $rowCarbonDate->format('l');
                 $allotmentsPerDate = $allotmentsByDate[$rowCarbonDate->format('Y-m-d')] ?? [];
@@ -196,32 +156,22 @@ new class extends Component {
                       case 'verifying':
                         $cardLookup = $statusClassStyle['other-booked'];
                         break;
-                      case 'rejected':
-                        $cardLookup = $statusClassStyle['available'];
-                        break;
                       default:
                         $cardLookup = $statusClassStyle['other-booked'];
                         break;
                     }
                   } else {
-                    $cardLookup = in_array($allotment->status, ['available', 'rejected']) ? $statusClassStyle['available'] : $statusClassStyle['other-booked'];
+                    $cardLookup = $allotment->status === 'available' ? $statusClassStyle['available'] : $statusClassStyle['other-booked'];
                   }
                 @endphp
     
-                <div wire:click="handleBooking('{{ $allotment->id }}')" class="{{ $cardLookup['bg'] }} rounded-md mb-2 p-4 min-w-40 px-4 transition-all hover:cursor-pointer">
-                  <div class="flex items-center mb-4">
-                    {!! $cardLookup['icon'] !!}
+                <div wire:click="redirectToRejectDetail('{{ $allotment->id }}')" class="bg-red-600 rounded-md mb-2 px-4 py-6 min-w-40 transition-all hover:cursor-pointer">
     
-                    <h5 class="{{ $cardLookup['color'] }} ml-auto">
-                      {{ $rowDate }}
-                    </h5>
-                  </div>
-    
-                  <div class="text-center {{ $cardLookup['color'] }}">
-                    <h5 class="mb-2">{{ $formattedStartTime . ' - ' . $formattedEndTime}}</h5>
-                    <h3 class="text-xl font-bold mb-2">{{ formatToRupiah($allotment->price)}}</h3>
-                    <h5 class="{{ $cardLookup['statusColor'] }} text-lg font-bold">{{ 
-                    ucwords($allotment->status === 'verifying' ? 'Booked' : ($allotment->status === 'rejected' ? 'Available' : $allotment->status))}}</h5>
+                  <div class="text-center text-white">
+                    <h5 class="text-white text-lg  mb-2">{{ 
+                      ucwords($allotment->field_name)}}</h5>
+                    <h5 class="text-xl font-bold mb-2">{{ $formattedStartTime . ' - ' . $formattedEndTime}}</h5>
+                    <h3 class=" mb-2">{{ formatToRupiah($allotment->price)}}</h3>
                   </div>
                 </div>
                 @endforeach
@@ -234,11 +184,6 @@ new class extends Component {
             </div>
         @endfor
       </div>
-    </div>
-
-    {{-- klu ad allotment yg pnya user --}}
-    <div wire:click="redirectToPayment" class=" bg-white p-4 sticky bottom-0 transition-all {{ count($allotmentsBookedByCurrentUser) ? '' : 'hidden' }}">
-      <button class="w-full py-4 text-center bg-indigo-600 rounded-md  text-white">Continue To Payment</button>
     </div>
 
       @once

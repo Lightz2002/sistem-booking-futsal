@@ -2,12 +2,8 @@
 
 use Carbon\Carbon;
 use Livewire\Volt\Component;
-use App\Models\Package;
-use App\Models\PackageDetail;
 use App\Models\Allotment;
-use App\Livewire\Forms\EditPackageForm;
-use App\Livewire\Forms\addPackageDetailForm;
-use App\Livewire\Forms\EditPackageDetailForm;
+use App\Livewire\Forms\RejectBookingForm;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\On;
@@ -17,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 new class extends Component {
   public Allotment $allotment;
+  public RejectBookingForm $rejectBookingForm;
 
   public function mount(Allotment $allotment) {
         $this->allotment = $allotment;
@@ -37,6 +34,30 @@ new class extends Component {
 
         $this->dispatch('close-modal', 'confirm-booking-payment');
         $this->dispatch('open-alert', name: 'booking-payment-alert', type: 'Success', message: 'Payment Confirmed And Booking Generated Successfully');
+
+        $this->redirectRoute('admin-bookings');
+      });
+    } catch (Exception $e) {
+        $this->dispatch('open-alert', name: 'booking-payment-alert', type: 'Error', message: $e->getMessage());
+      }
+  }
+
+  public function rejectBookingPayment() {
+    try {
+      DB::transaction(function () {
+        $this->rejectBookingForm->validate();
+        
+        $this->allotment->update([
+            'status' => 'rejected'
+        ]);
+
+
+        $this->allotment->payment->update([
+            'reject_reason' => $this->rejectBookingForm->reject_reason
+        ]);
+
+        $this->dispatch('close-modal', 'reject-booking-payment');
+        $this->dispatch('open-alert', name: 'booking-payment-alert', type: 'Success', message: 'Payment Rejected Successfully');
 
         $this->redirectRoute('admin-bookings');
       });
@@ -76,6 +97,11 @@ new class extends Component {
               >
                   {{ __('Confirm') }}
               </x-dropdown-button>
+              <x-dropdown-button
+              x-on:click.prevent="$dispatch('open-modal', 'reject-booking-payment')"
+              >
+                  {{ __('Reject') }}
+              </x-dropdown-button>
           </x-slot>
       </x-dropdown>
     </x-slot>
@@ -108,4 +134,5 @@ new class extends Component {
   </x-tabs>
 
   <x-forms.booking.admin.confirm />
+  <x-forms.booking.admin.reject />
 </div>
