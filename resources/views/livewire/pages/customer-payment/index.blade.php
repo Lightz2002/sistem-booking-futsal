@@ -72,7 +72,8 @@ new class extends Component {
 
         $payment = Payment::create([
             'payment_proof' => $this->customerPaymentForm->payment_proof ?? '',
-            'total_payment' => $allotmentsForPay->get()->sum('price')
+            'total_payment' => $allotmentsForPay->get()->sum('price'),
+            'reject_reason' => ''
         ]);
 
         $allotmentsForPay->update([
